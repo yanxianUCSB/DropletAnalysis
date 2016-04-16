@@ -1,0 +1,169 @@
+function sizeDist(path_root, ifgroupon, thrd_adjust, ...
+    bwlabelpara,...
+    numberOfBins,...
+    SCALE, ...
+    minDiam, maxDiam)
+% Ver 2.0
+
+analtype = 'diameterDist';
+inputtype = 'raw';
+if ~exist('path_root', 'var'),
+    path_root = uigetdir('C:/', analtype);    %Choose directory containing TIFF files.
+    %     path_root = 'D:\Desktop\Yanxian-to-backup\Yanxian-to-backup';  % Test
+end
+
+%% Load head.csv
+cellfind = @(string)(@(cell_contents)(strcmp(string,cell_contents)));
+csvfilename = [path_root, '\' inputtype,'\head', '.csv'];
+head = read_mixed_csv(csvfilename, ',');
+head(all(cellfun('isempty',head),2),:) = [];
+pathnameSave = [ analtype, '\'];
+mkdir([path_root, '\', pathnameSave]);
+
+%% Get header and body
+header = head(1,:);
+body = head(2:size(head,1),:);
+[om1, om2] = size(head);
+
+%% Update Header
+if sum(cellfun(cellfind(analtype), header)) == 0,
+    header(om2+1) = {analtype};
+end
+thisInputCol = find(cellfun(cellfind(inputtype), header));
+thisOutputCol = find(cellfun(cellfind(analtype), header));
+
+%% Subset body
+if ifgroupon,
+    subBodys = groupon(body, [2:6]);
+else
+    subBodys = groupon(body, [1]);
+end
+
+for subbodyi = 1:length(subBodys)
+    subbody = subBodys{subbodyi};
+    
+    %% filenames
+    filenames = subbody(:, 1);
+    
+    
+    %% Load tifData
+    kk = 1;
+    diamDistribution = [];
+    for ii = 1:length(filenames)
+        [filenamePath, filenameSample] = fileparts(filenames{ii});
+        load([path_root, '\', filenamePath, '\',...
+            inputtype, '\', filenameSample, '.mat'], 'tifData');
+        S = tifData;
+        
+        %% thresholding images based on Ridler Calvard
+        %         Reference: [1]. T. W. Ridler, S. Calvard, Picture thresholding using an iterative selection method, 
+%            IEEE Trans. System, Man and Cybernetics, SMC-8, pp. 630-632, 1978.
+        I = S.imageData;
+        [threshold, ~] = isodata(I);
+ 
+        %%
+        binaryImage = ones(size(I));
+        binaryImage(threshold + thrd_adjust <= I) = 0;
+        
+        labeledImage = bwlabel(binaryImage, bwlabelpara);
+        measurements = regionprops(labeledImage, 'EquivDiameter');
+        
+        allDiameters =  [measurements.EquivDiameter];
+        
+        %% diameters range
+        allDiameters = SCALE * allDiameters;  % 20X IX-70 microscope, 0.322 um/pixel
+        allDiameters = allDiameters(( minDiam <= allDiameters) & (allDiameters <= maxDiam));
+        
+        interval = abs(maxDiam-minDiam)/numberOfBins;
+        [counts binDiameters] = hist(allDiameters, minDiam:interval:maxDiam);
+        
+        diamDistribution = [diamDistribution; counts];
+        
+    end
+    
+    %% Average and Std
+    meanDiam = mean(diamDistribution, 1);
+    stdDiam = std(diamDistribution, 1);
+    if size(diamDistribution, 1) == 1,
+        stdDiam = zeros(1, size(diamDistribution, 2));
+    end
+    
+    
+    %% Plot size dist
+    
+    figDist = figure;
+    hold on;
+    
+    plotTitle = [inputtype, ' ',filenameSample, ' Droplet Size Dist'];
+    
+    bar(binDiameters, meanDiam);
+    errorbar(binDiameters, meanDiam, stdDiam,'.');
+    
+    xlim([minDiam, maxDiam]);
+    ylim([0, 100]);
+    xlabel('diameter/[\mum]');
+    ylabel('#');
+    title(plotTitle);
+    
+    %% #% dist
+    figDist2 = figure;
+    hold on;
+    
+    plotTitle2 = [inputtype, ' ', filenameSample, ' Droplet Size Dist'];
+    
+    normDist = 100*normr2(diamDistribution);
+    normDistMean = mean(normDist, 1);
+    normDistStd = std(normDist, 1);
+    if size(normDist, 1) == 1,
+        normDistStd = zeros(1, size(normDist, 2));
+    end
+    
+    bar(binDiameters, normDistMean, 'BarWidth', 1.0);
+    errorbar(binDiameters, normDistMean, normDistStd,'.');
+    
+    xlim([minDiam, maxDiam]);
+    ylim([0, 30]);
+    xlabel('diameter/[\mum]');
+    ylabel('%');
+    title(plotTitle2);
+    
+    %% Save
+    display(['saving ', filenameSample]);
+    filenameSave = [pathnameSave, filenameSample];
+    export_fig([path_root, '\', filenameSave], figDist);
+    export_fig([path_root, '\', filenameSave, '_prc'], figDist2);
+    
+    fig3 = figure;
+    imagesc(255*binaryImage);
+    export_fig([path_root, '\', filenameSave, '_bw'], fig3);
+    
+    
+    S.meanDiam = meanDiam;
+    S.stdDiam = stdDiam;
+    S.binDiameters = binDiameters;
+    save([path_root, '\', filenameSave, '.mat'], 'S');
+    try
+        csvwrite([path_root, '\', filenameSave, '.csv'], [binDiameters', meanDiam', stdDiam']);
+    catch
+    end
+    display('saved');
+    close all;
+    
+    %% update
+    % update head.csv
+    newsubbody(1, :) = subbody(1, :);
+    newsubbody(1, thisOutputCol) = {filenameSave};
+    %% Combine new subbody
+    if ~exist('newBody', 'var')
+        newBody = {};
+    end
+    newBody = [newBody; newsubbody];
+    clear newsubbody;
+    
+end
+
+newds = cell2dataset([header; newBody]);
+newcsvfilename = [path_root, '\', pathnameSave, 'head.csv'];
+export(newds,'file',[newcsvfilename],'delimiter',',')
+
+
