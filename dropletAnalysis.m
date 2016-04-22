@@ -15,11 +15,11 @@ processTifs([path_root, '\\raw']);
 %% Generate Size Distribution
 bwlabelpara = 8;  % lookup bwlabel.m
 Eccentricity = 1;
-thrd_adjust = -20; 
+thrd_adjust = -50; 
 numberOfBins = 60; % Or whatever you want.
 ifgroupon = 1;  % 1: average distribution of the regions
-minDiam = 1/0.322;
-maxDiam = 15/0.322;
+minDiam = 2/0.322;
+maxDiam = 30/0.322;
 SCALE = 0.322 / 2;
 
 
@@ -52,14 +52,35 @@ group.glycerol = [0.15];
 % compareGlycerol(path_root, group.Salt, group.Tau, group.RNA, group.glycerol, yLimMax);
 
 
-Axis.xLim = [0 15/2];
+Axis.xLim = [0 10];
 Axis.yLim = [0 100];
-Axis.Units = {'mM', 'uM', 'ug_mL', 'vv'};
+Axis.Units = {'mM', 'uM', 'ugmL', 'vv'};
 Instruction.col = [2 3 4 5];
-Instruction.names = {'salt', 'tau', 'rna', 'glycerol'};
-Instruction.comparision = [3 2 1 4];
+Instruction.names = {'NaCl', 'Tau', 'RNA', 'Glycerol'};
+Instruction.comparision = [1 2 3 4];
 DivCell = struct2cell(group);
 compareDim(path_root, DivCell, Instruction, Axis);
-Selection = [3 1];
+%%
+Selection = [4 4];
 compareDimThis(path_root, DivCell, Instruction, Axis, Selection);
+%% comparision of tau-tRNA and tau-polyA 
+inputtype = 'diameterDist';
+prefix = 'untitled';
+Axis.legends = {'tRNA', 'polyA'};
+
+filenameIDs = [53 65];
+Axis.title = 'tau = 160 uM, RNA = 480 ug/mL';
+multi_plot(path_root, inputtype, prefix, filenameIDs, Axis)
+
+filenameIDs = [35 15];
+Axis.title = 'tau = 77 uM, RNA = 150 ug/mL';
+multi_plot(path_root, inputtype, prefix, filenameIDs, Axis)
+
+filenameIDs = [38 12];
+Axis.title = 'tau = 74 uM, RNA = 240 ug/mL';
+multi_plot(path_root, inputtype, prefix, filenameIDs, Axis)
+
+filenameIDs = [59 68];
+Axis.title = 'tau = 154 uM, RNA = 461 ug/mL, NaCl = 20 mM';
+multi_plot(path_root, inputtype, prefix, filenameIDs, Axis)
 end

@@ -1,10 +1,13 @@
-function compareDimThis(path_root, DivCell, Instruction, Axis, Selection)
+function multi_plot(path_root, inputtype, prefix, filenameIDs, Axis)
 % Ver 4.0
 % comparision = [dim1 dim2 dim3 dim4] showing the way to present data
 
 
-analtype = 'compareDim';
-inputtype = 'diameterDist';
+analtype = 'plots';
+
+if ~exist('inputtype', 'var')
+    inputtype = 'diameterDist';
+end
 if ~exist('path_root', 'var'),
     path_root = uigetdir('C:/', analtype);    %Choose directory containing TIFF files.
 end
@@ -13,35 +16,41 @@ end
 pathnameSave = [ analtype, '\'];
 mkdir([path_root, '\', pathnameSave]);
 
+
+            for kim = 1:length(filenameIDs)
+                filenames{kim} = strjoin([{inputtype}, {'\'}, ...
+                    {prefix},...
+                    {num2str(filenameIDs(kim))}], '');
+            end
 %% Load head.csv
-cellfind = @(string)(@(cell_contents)(strcmp(string,cell_contents)));
+% cellfind = @(string)(@(cell_contents)(strcmp(string,cell_contents)));
 
-csvfilename = [path_root, '\' inputtype,'\head', '.csv'];
-chead = read_mixed_csv(csvfilename, ',');
-chead(all(cellfun('isempty',chead),2),:) = [];
+% csvfilename = [path_root, '\' inputtype,'\head', '.csv'];
+% chead = read_mixed_csv(csvfilename, ',');
+% chead(all(cellfun('isempty',chead),2),:) = [];
 
-head = cell2table(chead(2:size(chead,1), :));
-head.Properties.VariableNames = chead(1,:);
+% head = cell2table(chead(2:size(chead,1), :));
+% head.Properties.VariableNames = chead(1,:);
 
-%% Get header and body
-header = head.Properties.VariableNames;
-body = chead(2:size(chead, 1),:);
+% %% Get header and body
+% header = head.Properties.VariableNames;
+% body = chead(2:size(chead, 1),:);
 
-%% Update Header
-if sum(cellfun(cellfind(analtype), header)) == 0,
-    header = [header, {analtype}];
-end
-thisInputCol = find(cellfun(cellfind(inputtype), header));
-thisOutputCol = find(cellfun(cellfind(analtype), header));
+% %% Update Header
+% if sum(cellfun(cellfind(analtype), header)) == 0,
+%     header = [header, {analtype}];
+% end
+% thisInputCol = find(cellfun(cellfind(inputtype), header));
+% thisOutputCol = find(cellfun(cellfind(analtype), header));
 
-%% Subset body
-for divi = 1:length(DivCell)
-    tc = table2cell(head(:, Instruction.col(divi)));
-    DIV1 = DivCell{divi};
-    [thisdiv, ~, thisdivIndex] = uniquetol2(str2double(tc), DIV1);
-    body = [body, strtrim(cellstr(num2str(thisdiv(thisdivIndex))))];
-    divIndexCell{divi} = thisdivIndex;
-end
+% %% Subset body
+% for divi = 1:length(DivCell)
+%     tc = table2cell(head(:, Instruction.col(divi)));
+%     DIV1 = DivCell{divi};
+%     [thisdiv, ~, thisdivIndex] = uniquetol2(str2double(tc), DIV1);
+%     body = [body, strtrim(cellstr(num2str(thisdiv(thisdivIndex))))];
+%     divIndexCell{divi} = thisdivIndex;
+% end
 
 % [salt, ~, saltindex] = uniquetol2(str2double(head.salt), DIV1);
 % body = [body, strtrim(cellstr(num2str(salt(saltindex))))];
@@ -56,36 +65,36 @@ end
 % subBodys = groupon(body, ed+Instruction.comparision(2:4));
 % subBodys = groupon(body, size(body,2)-2:size(body,2));
 % sl = length(DivCell{1});
-subplotsx = length(DivCell{2});
-subplotsy = length(DivCell{3});
-subplotsz = length(DivCell{4});
-dimi = Instruction.comparision(1);
-dimx = Instruction.comparision(2);
-dimy = Instruction.comparision(3);
-dimz = Instruction.comparision(4);
+% subplotsx = length(DivCell{2});
+% subplotsy = length(DivCell{3});
+% subplotsz = length(DivCell{4});
+% dimi = Instruction.comparision(1);
+% dimx = Instruction.comparision(2);
+% dimy = Instruction.comparision(3);
+% dimz = Instruction.comparision(4);
 
-if ~isempty(Selection)
-    
+% if ~isempty(Selection)
+%     
     figurePublish();
 
-    theseRows = ismember(divIndexCell{dimx}, Selection(1)) & ...
-        ismember(divIndexCell{dimy}, Selection(2));
-    
-    body = body(theseRows, :);
-    for divi = 1:length(DivCell)
-        thisdivIndex = divIndexCell{divi};
-        divIndexCell{divi} = thisdivIndex(theseRows);
-    end
-    
-    subplotsx = 1;
-    subplotsy = 1;
-    tmp = DivCell{dimx};
-    DivCell{dimx} = tmp(Selection(1));
-    tmp = DivCell{dimy};
-    DivCell{dimy} = tmp(Selection(2));
-end
+%     theseRows = ismember(divIndexCell{dimx}, Selection(1)) & ...
+%         ismember(divIndexCell{dimy}, Selection(2));
+%     
+%     body = body(theseRows, :);
+%     for divi = 1:length(DivCell)
+%         thisdivIndex = divIndexCell{divi};
+%         divIndexCell{divi} = thisdivIndex(theseRows);
+%     end
+%     
+%     subplotsx = 1;
+%     subplotsy = 1;
+%     tmp = DivCell{dimx};
+%     DivCell{dimx} = tmp(Selection(1));
+%     tmp = DivCell{dimy};
+%     DivCell{dimy} = tmp(Selection(2));
+% end
 
-for zi = 1:subplotsz
+% for zi = 1:subplotsz
         %% parameters for figure and panel size
 %         plotheight=20;
 %         plotwidth=16;
@@ -109,70 +118,72 @@ for zi = 1:subplotsz
 %         set(gcf, 'PaperPosition', [0 0 plotwidth plotheight]);
     
     %% loop to create axes
-    for xi=1:subplotsx
-        for yi=1:subplotsy
+%     for xi=1:subplotsx
+%         for yi=1:subplotsy
             
             ax=axes('XGrid','off','XMinorGrid','off','Box','on','Layer','top');
                         
-             if yi==subplotsy
-                dc = DivCell{dimz};
-                titlestr = [Instruction.names{dimz},' ', ...
-                    num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}, ' '];
-                dc = DivCell{dimy};
-                titlestr = [titlestr, Instruction.names{dimy},' ', ...
-                    num2str(round(dc(yi)*100)/100),' ', Axis.Units{dimy}, ' '];
-                dc = DivCell{dimx};
-                titlestr = ([titlestr, Instruction.names{dimx},' ', ...
-                    num2str(round(dc(xi)*100)/100),' ', Axis.Units{dimx}, ' ']);
-                title(titlestr);
-            end
+%              if yi==subplotsy
+%                 dc = DivCell{dimz};
+%                 titlestr = [Instruction.names{dimz},' ', ...
+%                     num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}, ' '];
+%                 dc = DivCell{dimy};
+%                 titlestr = [titlestr, Instruction.names{dimy},' ', ...
+%                     num2str(round(dc(yi)*100)/100),' ', Axis.Units{dimy}, ' '];
+%                 dc = DivCell{dimx};
+%                 titlestr = ([titlestr, Instruction.names{dimx},' ', ...
+%                     num2str(round(dc(xi)*100)/100),' ', Axis.Units{dimx}, ' ']);
+                title(Axis.title);
+%             end
 
-            
-            if yi>1
-                set(ax,'xticklabel',[])
-            end
-            
-            if xi>1
-                set(ax,'yticklabel',[])
-            end
-            
-            if xi==1
+%             
+%             if yi>1
+%                 set(ax,'xticklabel',[])
+%             end
+%             
+%             if xi>1
+%                 set(ax,'yticklabel',[])
+%             end
+%             
+%             if xi==1
 %                 dimi = Instruction.comparision(2);
-                dc = DivCell{dimy};
+%                 dc = DivCell{dimy};
                 ylabel('Count #');
 %                 ylabel([Instruction.names{dimy},' ', ...
 %                     num2str(round(dc(yi)*100)/100),' ', Axis.Units{dimy}])
 %                 ylabel(['RNA ',num2str(round(rna(yi)*10)/10),' ug/mL'])
-            end
+%             end
             
-            if yi==1
+%             if yi==1
 %                 dimi = Instruction.comparision(3);
-                dc = DivCell{dimx};
+%                 dc = DivCell{dimx};
                 xlabel('Size / um');
 %                 xlabel([Instruction.names{dimx},' ', ...
 %                     num2str(round(dc(xi)*100)/100),' ', Axis.Units{dimx}])
 %                 xlabel(['Tau ',num2str(round(tau(xi)*10)/10),' uM'])
-            end
+%             end
             
             
-            subbody = body(xi == divIndexCell{dimx} & ...
-                yi == divIndexCell{dimy} &...
-                zi == divIndexCell{dimz}, :);
-            if ~isempty(Selection)
-                subbody = body;
-            end
-            if size(subbody, 1) == 0
-                continue
-            end
-            %% sort subbody
-            for iii = 1:length(subbody(:,2));
-                subbodytt(iii) = str2num(subbody{iii, 2});
-            end
-            [~, kkk] = sort(subbodytt);
-            subbody = subbody(kkk, :);
-            clear iii kkk subbodytt;
+%             subbody = body(xi == divIndexCell{dimx} & ...
+%                 yi == divIndexCell{dimy} &...
+%                 zi == divIndexCell{dimz}, :);
+%             if ~isempty(Selection)
+%                 subbody = body;
+%             end
+%             if size(subbody, 1) == 0
+%                 continue
+%             end
+%             %% sort subbody
+%             for iii = 1:length(subbody(:,2));
+%                 subbodytt(iii) = str2num(subbody{iii, 2});
+%             end
+%             [~, kkk] = sort(subbodytt);
+%             subbody = subbody(kkk, :);
+%             clear iii kkk subbodytt;
             %% filenames
-            filenames = subbody(:, thisInputCol);
+%             if ~exist('filenames', 'var')
+%                 filenames = subbody(:, thisInputCol);
+%             end
             %% Load Data
             meanDiam = [];
             stdDiam = [];
@@ -200,29 +211,28 @@ for zi = 1:subplotsz
             ylim(Axis.yLim);
             
             
-            thislegendi = Instruction.col(Instruction.comparision(1));
-            salts = round(100*cellfun(@str2num, subbody(:,thislegendi))) / 100;
-            for kim = 1:size(subbody(:,thislegendi), 1)
-                LG{kim} = strjoin([{Instruction.names{dimi}},...
-                    {' = '}, {num2str(salts(kim))}, {' '}, ...
-                    {Axis.Units{dimi}}]);
-            end
-            h_legend = legend([LG],...
-                'Location', 'NorthEast');
+%             thislegendi = Instruction.col(Instruction.comparision(1));
+%             salts = round(100*cellfun(@str2num, subbody(:,thislegendi))) / 100;
+%             for kim = 1:size(subbody(:,thislegendi), 1)
+%                 LG{kim} = strjoin([{Instruction.names{dimi}},...
+%                     {' = '}, {num2str(salts(kim))}, {' '}, ...
+%                     {Axis.Units{dimi}}]);
+%             end
+            legend([Axis.legends], 'Location', 'NorthEast');
             
 %             h_legend = legend([num2str(round(100*cellfun(@str2num, subbody(:, thislegendi)))/100)],...
 %                 'Location', 'NorthEast');
             %             set(h_legend,'FontSize', 5);
 
             
-        end
-    end
+%         end
+%     end
     
     %Saving eps with matlab and then producing pdf and png with system commands
 %     dimi = Instruction.comparision(1);
-    dc = DivCell{dimz};
-    filenameSample = ([Instruction.names{dimz}, ' ', num2str(Selection), ' ', ...
-        num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}]);
+%     dc = DivCell{dimz};
+%     filenameSample = ([Instruction.names{dimz}, ' ', num2str(Selection), ' ', ...
+%         num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}]);
     
 %     %% F_cking Title
 %     [ax h] = suplabel(['Size Distribution of ', Instruction.names{dimi}, ' at ', ...
