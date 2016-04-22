@@ -1,15 +1,15 @@
-function figurePublish()
+function figurePublish(path_root, DivCell, Axis)
 
 % group.Salt = [0.000, 150, 260];
 % group.Tau = [86, 129, 172, 214, 257];
 % group.RNA = [11, 120, 240, 360, 480, 600, 720];
 % group.glycerol = [0.1, 0.3];
 % 
-yLimMax = 50;
-group.Salt = [0 150 300];
-group.Tau = [0 20 40 60];
-group.RNA = [0 20 40 60];
-group.glycerol = [0 0.05 0.1 0.15];
+% yLimMax = 50;
+% group.Salt = [0 150 300];
+% group.Tau = [0 20 40 60];
+% group.RNA = [0 20 40 60];
+% group.glycerol = [0 0.05 0.1 0.15];
 
 % yLimMax = 50;
 % group.Salt = [0 70 150 500 2000 3000];
@@ -63,8 +63,8 @@ set(0, 'defaultFigurePaperPosition', defsize);
 % set(gca,'YTick',0:10); %<- Still need to manually specific tick marks
 
 %
-xLim = [0 15];
-yLim = [0 20];
+% xLim = [0 15];
+% yLim = [0 20];
 % compareTheseSalt(path_root, group.Salt, group.Tau, group.RNA, group.glycerol,...
 %     [0 80 120 0.1], xLim, yLim);
 % compareTheseTau(path_root, group.Salt, group.Tau, group.RNA, group.glycerol,...

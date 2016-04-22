@@ -57,9 +57,8 @@ Axis.yLim = [0 100];
 Axis.Units = {'mM', 'uM', 'ug_mL', 'vv'};
 Instruction.col = [2 3 4 5];
 Instruction.names = {'salt', 'tau', 'rna', 'glycerol'};
-Instruction.comparision = [3 2 1 4];
+Instruction.comparision = [1 2 3 4];
 DivCell = struct2cell(group);
 compareDim(path_root, DivCell, Instruction, Axis);
-Selection = [3 1];
-compareDimThis(path_root, DivCell, Instruction, Axis, Selection);
+plotSelect
 end

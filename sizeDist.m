@@ -1,5 +1,6 @@
 function sizeDist(path_root, ifgroupon, thrd_adjust, ...
     bwlabelpara,...
+    Eccentricity, ...
     numberOfBins,...
     SCALE, ...
     minDiam, maxDiam)
@@ -58,26 +59,53 @@ for subbodyi = 1:length(subBodys)
         %% thresholding images based on Ridler Calvard
         %         Reference: [1]. T. W. Ridler, S. Calvard, Picture thresholding using an iterative selection method, 
 %            IEEE Trans. System, Man and Cybernetics, SMC-8, pp. 630-632, 1978.
-        I = S.imageData;
-        [threshold, ~] = isodata(I);
+        Im = S.imageData;
+        [threshold, ~] = isodata(Im);
  
-        %%
-        binaryImage = ones(size(I));
-        binaryImage(threshold + thrd_adjust <= I) = 0;
+        IBW = ones(size(Im));
+        IBW(threshold + thrd_adjust <= Im) = 0;
         
-        labeledImage = bwlabel(binaryImage, bwlabelpara);
-        measurements = regionprops(labeledImage, 'EquivDiameter');
+        %% BW fill
+        binaryImage = imfill(IBW);
+        %% Regionprops
+        % Filter out extremely small or large or eccentric regions
+%         cc = bwconncomp(binaryImage); 
+%         measurements = regionprops(cc, 'EquivDiameter','Eccentricity');
+%         idx = find([measurements.EquivDiameter] > minDiam & ...
+%             [measurements.EquivDiameter] < maxDiam & ... 
+%             [measurements.Eccentricity] < Eccentricity);
+%         binaryImage = ismember(labelmatrix(cc), idx);
+
+        labeledImage = bwlabel(binaryImage); 
+        measurements = regionprops(labeledImage, 'EquivDiameter','Eccentricity');
+        idx = find([measurements.EquivDiameter] > minDiam & ...
+            [measurements.EquivDiameter] < maxDiam & ... 
+            [measurements.Eccentricity] < Eccentricity);
+        binaryImage = ismember(labeledImage, idx);
         
-        allDiameters =  [measurements.EquivDiameter];
+%         %% Regionprops
+%         labeledImage = bwlabel(binaryImage, bwlabelpara);
+%         measurements = regionprops(labeledImage, 'EquivDiameter', 'Eccentricity');
+%         allDiameters =  [measurements.EquivDiameter];
+% 
+%         %% Filter out extremely small or large or eccentric points
+%         idx = find([measurements.EquivDiameter] > minDiam & ...
+%             [measurements.EquivDiameter] < maxDiam & ... 
+%             [measurements.Eccentricity] < Eccentricity);
+                
+        allDiameters = [measurements.EquivDiameter];
         
-        %% diameters range
-        allDiameters = SCALE * allDiameters;  % 20X IX-70 microscope, 0.322 um/pixel
-        allDiameters = allDiameters(( minDiam <= allDiameters) & (allDiameters <= maxDiam));
         
-        interval = abs(maxDiam-minDiam)/numberOfBins;
-        [counts binDiameters] = hist(allDiameters, minDiam:interval:maxDiam);
+        %% scale diameters in unit of micrometer
+        allDiameters2 = SCALE * allDiameters;  % 20X IX-70 microscope, 0.322 um/pixel
+        minDiam2 = SCALE * minDiam;
+        maxDiam2 = SCALE * maxDiam;
+%         allDiameters = allDiameters(( minDiam <= allDiameters) & (allDiameters <= maxDiam));
         
-        diamDistribution = [diamDistribution; counts];
+        interval = abs(maxDiam2-minDiam2)/numberOfBins;
+        [counts, binDiameters] = hist(allDiameters2, minDiam2:interval:maxDiam2);
+        
+        diamDistribution(ii, :) = [counts];
         
     end
     
@@ -99,7 +127,7 @@ for subbodyi = 1:length(subBodys)
     bar(binDiameters, meanDiam);
     errorbar(binDiameters, meanDiam, stdDiam,'.');
     
-    xlim([minDiam, maxDiam]);
+    xlim([minDiam2, maxDiam2]);
     ylim([0, 100]);
     xlabel('diameter/[\mum]');
     ylabel('#');
@@ -121,20 +149,27 @@ for subbodyi = 1:length(subBodys)
     bar(binDiameters, normDistMean, 'BarWidth', 1.0);
     errorbar(binDiameters, normDistMean, normDistStd,'.');
     
-    xlim([minDiam, maxDiam]);
+    xlim([minDiam2, maxDiam2]);
     ylim([0, 30]);
     xlabel('diameter/[\mum]');
     ylabel('%');
     title(plotTitle2);
     
-    %% Save
+    %% Save size distribution figures
     display(['saving ', filenameSample]);
     filenameSave = [pathnameSave, filenameSample];
     export_fig([path_root, '\', filenameSave], figDist);
     export_fig([path_root, '\', filenameSave, '_prc'], figDist2);
     
+    %% Save size recognition images
     fig3 = figure;
-    imagesc(255*binaryImage);
+    I = uint16(zeros([size(binaryImage) 3]));
+    I(:, :, 2) = reshape(2^4*double(tifData.imageData), ...
+        size(binaryImage, 1), size(binaryImage, 2));
+    I(:, :, 3) = I(:, :, 2);
+    I(:, :, 1) = I(:, :, 2) + im2uint16(binaryImage);
+    image(I);
+%     imagesc(255*binaryImage);
     export_fig([path_root, '\', filenameSave, '_bw'], fig3);
     
     

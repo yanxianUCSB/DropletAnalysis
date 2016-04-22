@@ -1,7 +1,8 @@
-function compareSalt(path_root, DIV1, DIV2, DIV3, DIV4, yLimMax)
+function plotThisCondition(path_root, DivCell, Pick, Axis)
 % Ver 4.0
 
-analtype = 'compareSalt';
+
+analtype = 'publish';
 inputtype = 'diameterDist';
 if ~exist('path_root', 'var'),
     path_root = uigetdir('C:/', analtype);    %Choose directory containing TIFF files.
@@ -33,34 +34,62 @@ thisInputCol = find(cellfun(cellfind(inputtype), header));
 thisOutputCol = find(cellfun(cellfind(analtype), header));
 
 %% Subset body
-[salt, ~, saltindex] = uniquetol2(str2double(head.salt), DIV1);
-body = [body, strtrim(cellstr(num2str(salt(saltindex))))];
-[tau, ~, tauIndex] = uniquetol2(str2double(head.tau), DIV2);
-body = [body, strtrim(cellstr(num2str(tau(tauIndex))))];
-[rna, ~, rnaIndex] = uniquetol2(str2double(head.rna), DIV3);
-body = [body, strtrim(cellstr(num2str(rna(rnaIndex))))];
-[glycerol, ~, glycerolIndex] = uniquetol2(str2double(head.glycerol), DIV4);
-body = [body, strtrim(cellstr(num2str(glycerol(glycerolIndex))))];
+for divi = 1:length(DivCell)
+    tc = table2cell(head(:, Instruction.col(divi)));
+    DIV1 = DivCell{divi};
+    [thisdiv, ~, thisdivIndex] = uniquetol2(str2double(tc), DIV1);
+    body = [body, strtrim(cellstr(num2str(thisdiv(thisdivIndex))))];
+    divIndexCell{divi} = thisdivIndex;
+end
 
-subBodys = groupon(body, size(body,2)-2:size(body,2));
-sl = length(salt);
-tl = length(tau);
-rl = length(rna);
-gl = length(glycerol);
+ary.i = DivCell{1};
+ary.x = DivCell{2};
+ary.y = DivCell{3};
+ary.z = DivCell{4};
+subplotsx = length(ary.x);
+subplotsy = length(ary.y);
+subplotsz = length(ary.z);
+% dimi = Instruction.comparision(1);
+% dimx = Instruction.comparision(2);
+% dimy = Instruction.comparision(3);
+% dimz = Instruction.comparision(4);
 
-for gi = 1:gl
+
+% Ver04151601
+
+theseRows = divIndexCell{2} == Pick(2) & ...
+    divIndexCell{3} == Pick(3) &...
+    divIndexCell{4} == Pick(4);
+body = body(theseRows, :);
+for ikj = 1:4
+    ct = divIndexCell{ikj};
+    divIndexCell{ikj} = ct(theseRows);
+end
+% salt = Pick(1);
+tau = ary.x;
+rna = ary.y;
+glycerol = ary.z;
+% 
+
+% subBodys = groupon(body, size(body,2)-2:size(body,2));
+% sl = length(salt);
+% tl = length(tau);
+% rl = length(rna);
+% gl = length(glycerol);
+
+for gi = 1:subplotsz
     %parameters for figure and panel size
     plotheight=20;
     plotwidth=16;
-    subplotsx=tl;
-    subplotsy=rl;
-    leftedge=1.2;
-    rightedge=0.4;
-    topedge=1;
-    bottomedge=1.5;
-    spacex=0.2;
-    spacey=0.2;
-    fontsize=5;
+%     subplotsx=tl;
+%     subplotsy=gl;
+    leftedge=2;
+    rightedge=0.8;
+    topedge=1.5;
+    bottomedge=3;
+    spacex=2;
+    spacey=2;
+    fontsize=get(0, 'DefaultAxesFontSize');
     sub_pos=subplot_pos(plotwidth,plotheight,leftedge,rightedge,bottomedge,topedge,subplotsx,subplotsy,spacex,spacey);
     
     %setting the Matlab figure
@@ -82,7 +111,9 @@ for gi = 1:gl
             
  
             if yi==subplotsy
-                title(['Glycerol ', num2str(round(glycerol(gi)*10)/10),' v/v'])
+                title(['Glycerol ', num2str(round(glycerol(gi)*10)/10),' v/v', ...
+                    ['RNA ',num2str(round(rna(yi)*10)/10),' ug/mL'],...
+                    ['Tau ',num2str(round(tau(ti)*10)/10),' uM']]);
             end
             
             if yi>1
@@ -94,15 +125,14 @@ for gi = 1:gl
             end
             
             if xi==1
-                ylabel(['RNA ',num2str(round(rna(yi)*10)/10),' ug/mL'])
+                ylabel(['Particle Number'])
             end
             
             if yi==1
-                xlabel(['Tau ',num2str(round(tau(xi)*10)/10),' uM'])
+                xlabel(['Particle Size / um']);
             end
             
-            
-            subbody = body(pi == rnaIndex & ti == tauIndex & gi == glycerolIndex, :);
+            subbody = body;
             if size(subbody, 1) == 0
                 continue
             end
@@ -130,7 +160,7 @@ for gi = 1:gl
             %% Plot size dist
             hold all;
             for iiii = 1:size(meanDiam,1),
-                plot(binDiameters(iiii, :), meanDiam(iiii, :), 'LineWidth', 1.0, 'Color', getColor(iiii));
+                plot(binDiameters(iiii, :), meanDiam(iiii, :), 'LineWidth', 1.5, 'Color', getColor(iiii));
                 
             end
             for iiii = 1:size(meanDiam,1),
@@ -138,10 +168,14 @@ for gi = 1:gl
                 plot(binDiameters(iiii, :), meanDiam(iiii, :) - stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
                 %                 errorbar(binDiameters(ii, :), meanDiam(ii, :), stdDiam(ii, :),':');
             end
-            xlim([0, 15]);
-            ylim([0, yLimMax]);
+            xlim(Axis.xLim);
+            ylim(Axis.yLim);
             
-            h_legend = legend([num2str(round(10*cellfun(@str2num, subbody(:,2)))/10)],...
+            salts = round(10*cellfun(@str2num, subbody(:,2)))/10;
+            for kim = 1:size(subbody(:,2), 1)
+                LG{kim} = strjoin([{'NaCl = '}, {num2str(salts(kim))}, {' mM'}]);
+            end
+            h_legend = legend([LG],...
                 'Location', 'NorthEast');
             %             set(h_legend,'FontSize', 5);
 
@@ -150,10 +184,8 @@ for gi = 1:gl
     end
     
     %Saving eps with matlab and then producing pdf and png with system commands
-    filenameSample=['Glycerol ', num2str(round(glycerol(gi)*100)/100),' vv'];
+    filenameSample=['Salt_Glycerol ', num2str(round(glycerol(gi)*100)/100),' vv'];
     
-    %% F_cking Title
-    [ax h] = suplabel(filenameSample  ,'t');
     %%
     display(['saving ', filenameSample]);
     filenameSave = [pathnameSave, filenameSample];
