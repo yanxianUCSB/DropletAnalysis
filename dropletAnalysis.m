@@ -62,18 +62,22 @@ Axis.Units = {'mM', 'uM', 'ugmL', 'vv'};
 Instruction.col = [2 3 4 5];
 Instruction.names = {'NaCl', 'Tau', 'RNA', 'Glycerol'};
 DivCell = struct2cell(group);
-% %%
-% Instruction.comparision = [1 2 3 4];
-% compareDim(path_root, DivCell, Instruction, Axis);
-% %
-% Selection = [4 4];
-% Axis.xLim = [1 15];
-% Axis.yLim = [0 100];
-% compareDimThis(path_root, DivCell, Instruction, Axis, Selection);
+%%
+Instruction.comparision = [1 2 3 4];
+compareDim(path_root, DivCell, Instruction, Axis, headfilename);
+%
+Selection = [4 4];
+Axis.xLim = [3 10];
+Axis.yLim = [0 60];
+compareDimThis(path_root, DivCell, Instruction, Axis, Selection, headfilename);
 %%
 Instruction.comparision = [3 2 1 4];
 compareDim(path_root, DivCell, Instruction, Axis, headfilename);
-%
+%%
+Selection = [3 1];
+Axis.xLim = [0 10];
+Axis.yLim = [0 200];
+compareDimThis(path_root, DivCell, Instruction, Axis, Selection, headfilename);
 Selection = [2 1];
 Axis.xLim = [0 10];
 Axis.yLim = [0 200];
