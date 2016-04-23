@@ -10,7 +10,7 @@ if ~exist('path_root', 'var')
 end
 
 % Head Filename
-headfilename = 'head-O3';
+headfilename = 'head-N';
 
 %%
 % processTifs([path_root, '\\raw']);
@@ -74,7 +74,7 @@ DivCell = struct2cell(group);
 Instruction.comparision = [3 2 1 4];
 compareDim(path_root, DivCell, Instruction, Axis, headfilename);
 %
-Selection = [3 1];
+Selection = [2 1];
 Axis.xLim = [0 10];
 Axis.yLim = [0 200];
 compareDimThis(path_root, DivCell, Instruction, Axis, Selection, headfilename);
