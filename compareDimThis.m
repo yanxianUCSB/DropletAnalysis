@@ -1,4 +1,4 @@
-function compareDimThis(path_root, DivCell, Instruction, Axis, Selection, headfilename)
+function compareDimThis(path_root, DivCell, Instruction, Axis, Selection)
 % Ver 4.0
 % comparision = [dim1 dim2 dim3 dim4] showing the way to present data
 
@@ -8,9 +8,7 @@ inputtype = 'diameterDist';
 if ~exist('path_root', 'var'),
     path_root = uigetdir('C:/', analtype);    %Choose directory containing TIFF files.
 end
-if ~exist('headfilename', 'var'),
-    headfilename = 'head';
-end
+
 %% Make Output Dir
 pathnameSave = [ analtype, '\'];
 mkdir([path_root, '\', pathnameSave]);
@@ -18,7 +16,7 @@ mkdir([path_root, '\', pathnameSave]);
 %% Load head.csv
 cellfind = @(string)(@(cell_contents)(strcmp(string,cell_contents)));
 
-csvfilename = [path_root, '\' inputtype,'\', headfilename, '.csv'];
+csvfilename = [path_root, '\' inputtype,'\head', '.csv'];
 chead = read_mixed_csv(csvfilename, ',');
 chead(all(cellfun('isempty',chead),2),:) = [];
 
