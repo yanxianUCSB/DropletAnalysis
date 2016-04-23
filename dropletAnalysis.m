@@ -43,7 +43,7 @@ sizeDist(path_root, ifgroupon, thrd_adjust, ...
 % group.RNA = [50 70 150 240 480];
 % group.glycerol = [0.15];
 
-group.Salt = [-1 0 1 2 3 6 12 22 50];
+group.Salt = [0 30 50 100];
 group.Tau = [15 50 80 160];
 group.RNA = [50 150 240 480];
 group.glycerol = [0.15];
@@ -58,9 +58,9 @@ group.glycerol = [0.15];
 
 Axis.xLim = [1.2 10];
 Axis.yLim = [0 100];
-Axis.Units = {'min', 'uM', 'ugmL', 'vv'};
-Instruction.col = [8 3 4 5];
-Instruction.names = {'Time', 'Tau', 'RNA', 'Glycerol'};
+Axis.Units = {'mM', 'uM', 'ugmL', 'vv'};
+Instruction.col = [2 3 4 5];
+Instruction.names = {'NaCl', 'Tau', 'RNA', 'Glycerol'};
 DivCell = struct2cell(group);
 % %%
 % Instruction.comparision = [1 2 3 4];
@@ -71,12 +71,12 @@ DivCell = struct2cell(group);
 % Axis.yLim = [0 100];
 % compareDimThis(path_root, DivCell, Instruction, Axis, Selection);
 %%
-Instruction.comparision = [1 2 3 4];
+Instruction.comparision = [3 2 1 4];
 compareDim(path_root, DivCell, Instruction, Axis, headfilename);
 %
-Selection = [4 4];
+Selection = [3 1];
 Axis.xLim = [0 10];
-Axis.yLim = [0 100];
+Axis.yLim = [0 200];
 compareDimThis(path_root, DivCell, Instruction, Axis, Selection, headfilename);
 
 % %% comparision of tau-tRNA and tau-polyA 
