@@ -10,7 +10,7 @@ if ~exist('path_root', 'var')
 end
 
 % Head Filename
-headfilename = 'head-N';
+headfilename = 'head-P';
 
 %%
 % processTifs([path_root, '\\raw']);
