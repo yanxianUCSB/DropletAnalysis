@@ -13,7 +13,7 @@ end
 headfilename = 'head-O3';
 
 %%
-processTifs([path_root, '\\raw']);
+% processTifs([path_root, '\\raw']);
 
 %% Generate Size Distribution
 bwlabelpara = 4;  % lookup bwlabel.m
@@ -58,9 +58,9 @@ group.glycerol = [0.15];
 
 Axis.xLim = [1.2 10];
 Axis.yLim = [0 100];
-Axis.Units = {'mM', 'uM', 'ugmL', 'vv'};
-Instruction.col = [2 3 4 5];
-Instruction.names = {'NaCl', 'Tau', 'RNA', 'Glycerol'};
+Axis.Units = {'min', 'uM', 'ugmL', 'vv'};
+Instruction.col = [8 3 4 5];
+Instruction.names = {'Time', 'Tau', 'RNA', 'Glycerol'};
 DivCell = struct2cell(group);
 % %%
 % Instruction.comparision = [1 2 3 4];
@@ -71,11 +71,11 @@ DivCell = struct2cell(group);
 % Axis.yLim = [0 100];
 % compareDimThis(path_root, DivCell, Instruction, Axis, Selection);
 %%
-Instruction.comparision = [3 2 1 4];
+Instruction.comparision = [1 2 3 4];
 compareDim(path_root, DivCell, Instruction, Axis, headfilename);
 %
-Selection = [3 2];
-Axis.xLim = [3 8];
+Selection = [4 4];
+Axis.xLim = [0 10];
 Axis.yLim = [0 100];
 compareDimThis(path_root, DivCell, Instruction, Axis, Selection, headfilename);
 
