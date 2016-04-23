@@ -67,7 +67,7 @@ dimz = Instruction.comparision(4);
 if ~isempty(Selection)
     
     figurePublish();
-
+    
     theseRows = ismember(divIndexCell{dimx}, Selection(1)) & ...
         ismember(divIndexCell{dimy}, Selection(2));
     
@@ -188,14 +188,20 @@ for zi = 1:subplotsz
             %% Plot size dist
             hold all;
             for iiii = 1:size(meanDiam,1),
-                plot(binDiameters(iiii, :), meanDiam(iiii, :), 'LineWidth', 1.5, 'Color', getColor(iiii));
+                
+                lineProps.width = 1.5;
+                lineProps.col = {getColor(iiii)};
+                transparent = 1;
+                mseb(binDiameters(iiii, :), meanDiam(iiii, :), stdDiam(iiii, :),...
+                    lineProps, transparent);
+%                 plot(binDiameters(iiii, :), meanDiam(iiii, :), 'LineWidth', 1.5, 'Color', getColor(iiii));
                 
             end
-            for iiii = 1:size(meanDiam,1),
-                plot(binDiameters(iiii, :), meanDiam(iiii, :) + stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
-                plot(binDiameters(iiii, :), meanDiam(iiii, :) - stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
-                %                 errorbar(binDiameters(ii, :), meanDiam(ii, :), stdDiam(ii, :),':');
-            end
+%             for iiii = 1:size(meanDiam,1),
+%                 plot(binDiameters(iiii, :), meanDiam(iiii, :) + stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
+%                 plot(binDiameters(iiii, :), meanDiam(iiii, :) - stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
+%                 %                 errorbar(binDiameters(ii, :), meanDiam(ii, :), stdDiam(ii, :),':');
+%             end
             xlim(Axis.xLim);
             ylim(Axis.yLim);
             
@@ -221,8 +227,8 @@ for zi = 1:subplotsz
     %Saving eps with matlab and then producing pdf and png with system commands
 %     dimi = Instruction.comparision(1);
     dc = DivCell{dimz};
-    filenameSample = ([Instruction.names{dimz}, ' ', num2str(Selection), ' ', ...
-        num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}]);
+    filenameSample = ([Instruction.names{Instruction.comparision(1)}, ...
+        ' ', num2str(Selection), ' ']);
     
 %     %% F_cking Title
 %     [ax h] = suplabel(['Size Distribution of ', Instruction.names{dimi}, ' at ', ...

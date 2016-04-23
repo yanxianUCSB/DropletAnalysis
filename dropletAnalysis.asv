@@ -19,7 +19,7 @@ thrd_adjust = -100;
 numberOfBins = 50; % Or whatever you want.
 ifgroupon = 1;  % 1: average distribution of the regions
 minDiam = 2/0.322;
-maxDiam = 30/0.322;
+maxDiam = 20/0.322;
 SCALE = 0.322 / 2;
 
 
@@ -57,22 +57,13 @@ Axis.yLim = [0 100];
 Axis.Units = {'mM', 'uM', 'ugmL', 'vv'};
 Instruction.col = [2 3 4 5];
 Instruction.names = {'NaCl', 'Tau', 'RNA', 'Glycerol'};
-Instruction.comparision = [1 2 3 4];
+Instruction.comparision = [3 2 1 4];
 DivCell = struct2cell(group);
 compareDim(path_root, DivCell, Instruction, Axis);
 %%
-Selection = [4 4];
-Axis.xLim = [1 15];
+Selection = [3 1];
 Axis.yLim = [0 100];
 compareDimThis(path_root, DivCell, Instruction, Axis, Selection);
-%%
-Instruction.comparision = [3 2 1 4];
-compareDim(path_root, DivCell, Instruction, Axis);
-Selection = [2 1];
-Axis.xLim = [3 15];
-Axis.yLim = [0 60];
-compareDimThis(path_root, DivCell, Instruction, Axis, Selection);
-
 %% comparision of tau-tRNA and tau-polyA 
 inputtype = 'diameterDist';
 prefix = 'untitled';

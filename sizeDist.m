@@ -35,7 +35,7 @@ thisOutputCol = find(cellfun(cellfind(analtype), header));
 
 %% Subset body
 if ifgroupon,
-    subBodys = groupon(body, [2:6]);
+    subBodys = groupon(body, [2:6, 8:10]);
 else
     subBodys = groupon(body, [1]);
 end
@@ -94,7 +94,7 @@ for subbodyi = 1:length(subBodys)
 %             [measurements.Eccentricity] < Eccentricity);
                 
         allDiameters = [measurements.EquivDiameter];
-        
+        allDiameters = allDiameters(idx);
         
         %% scale diameters in unit of micrometer
         allDiameters2 = SCALE * allDiameters;  % 20X IX-70 microscope, 0.322 um/pixel

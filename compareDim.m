@@ -135,6 +135,7 @@ for zi = 1:subplotsz
                 ylabel([Instruction.names{dimy},' ', ...
                     num2str(round(dc(yi)*100)/100),' ', Axis.Units{dimy}])
                 %                 ylabel(['RNA ',num2str(round(rna(yi)*10)/10),' ug/mL'])
+                set(ax,'yLim',Axis.yLim);
             end
             
 
@@ -145,6 +146,7 @@ for zi = 1:subplotsz
                 xlabel([Instruction.names{dimx},' ', ...
                     num2str(round(dc(xi)*100)/100),' ', Axis.Units{dimx}])
                 %                 xlabel(['Tau ',num2str(round(tau(xi)*10)/10),' uM'])
+                set(ax,'xLim',Axis.xLim);
             end
             
             
@@ -204,8 +206,9 @@ for zi = 1:subplotsz
     %Saving eps with matlab and then producing pdf and png with system commands
 %     dimi = Instruction.comparision(1);
     dc = DivCell{dimz};
-    filenameSample = ([Instruction.names{dimz}, ' ', num2str(Selection), ' ', ...
-        num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}]);
+    filenameSample = ([Instruction.names{Instruction.comparision(1)}, num2str(zi)]);
+%     filenameSample = ([Instruction.names{dimz}, ' ', num2str(Selection), ' ', ...
+%         num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}]);
     
     %% F_cking Title
     [ax h] = suplabel(['Size Distribution of ', Instruction.names{dimi}, ' at ', ...
