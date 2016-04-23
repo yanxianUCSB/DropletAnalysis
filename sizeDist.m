@@ -3,7 +3,7 @@ function sizeDist(path_root, ifgroupon, thrd_adjust, ...
     Eccentricity, ...
     numberOfBins,...
     SCALE, ...
-    minDiam, maxDiam)
+    minDiam, maxDiam, headfilename)
 % Ver 2.0
 
 analtype = 'diameterDist';
@@ -15,7 +15,10 @@ end
 
 %% Load head.csv
 cellfind = @(string)(@(cell_contents)(strcmp(string,cell_contents)));
-csvfilename = [path_root, '\' inputtype,'\head', '.csv'];
+if ~exist('headfilename', 'var'),
+    headfilename = 'head';
+end
+csvfilename = [path_root, '\' inputtype,'\', headfilename, '.csv'];
 head = read_mixed_csv(csvfilename, ',');
 head(all(cellfun('isempty',head),2),:) = [];
 pathnameSave = [ analtype, '\'];
@@ -198,7 +201,7 @@ for subbodyi = 1:length(subBodys)
 end
 
 newds = cell2dataset([header; newBody]);
-newcsvfilename = [path_root, '\', pathnameSave, 'head.csv'];
+newcsvfilename = [path_root, '\', pathnameSave, headfilename, '.csv'];
 export(newds,'file',[newcsvfilename],'delimiter',',')
 
 
