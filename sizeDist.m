@@ -66,7 +66,7 @@ for subbodyi = 1:length(subBodys)
         
         %% find size distribution based on imfindcircles.m
         % Specify range of particle radii
-        radiusRange = [1, 5; 5, 10; 10, 20; 20, 40; 40, 60; 60, 80; 80, 100;];
+        radiusRange = [5, 10; 10, 20; 20, 40; 40, 60; 60, 80; 80, 100;];
         % Specify edge detection threshold (in case of blurry images)
         EdgeThreshold = 0.01;
         % Specify polarity
@@ -74,7 +74,7 @@ for subbodyi = 1:length(subBodys)
         % Specify Sensitivity
         Sensitivity = 0.90;
         % Call findcircles.m function
-        [centers,radii] = findcircles(radiusRange,Im,EdgeThreshold,ObjectPolarity,Sensitivity);
+        [centers,radii] = findcircles(radiusRange,binaryImage,EdgeThreshold,ObjectPolarity,Sensitivity);
         allDiameters = radii;
         %% Regionprops
         % Filter out extremely small or large or eccentric regions
