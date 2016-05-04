@@ -10,7 +10,7 @@ if ~exist('path_root', 'var')
 end
 
 % Head Filename
-headfilename = 'head';
+headfilename = 'head-P';
 
 %%
 % processTifs([path_root, '\\raw']);
@@ -18,7 +18,7 @@ headfilename = 'head';
 %% Generate Size Distribution
 bwlabelpara = 4;  % lookup bwlabel.m
 Eccentricity = 1;
-thrd_adjust = 0; 
+thrd_adjust = -100; 
 numberOfBins = 50; % Or whatever you want.
 ifgroupon = 1;  % 1: average distribution of the regions
 minDiam = 2/0.322;
@@ -26,7 +26,7 @@ maxDiam = 30/0.322;
 SCALE = 0.322 / 2;
 
 
-set(0,'DefaultFigureVisible','on');
+set(0,'DefaultFigureVisible','off');
 
 sizeDist(path_root, ifgroupon, thrd_adjust, ...
     bwlabelpara,...
