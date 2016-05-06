@@ -1,4 +1,6 @@
 function path_root = dropletAnalysis(path_root)
+% Ver 16042101
+
 
 %% Set Default path of the head file
 path_root = 'F:\Documents\Doc-Research\Doc-20150324-Tau Droplet\data\test';
@@ -15,11 +17,11 @@ headfilename = 'head';
 
 %% Generate Size Distribution
 bwlabelpara = 4;  % lookup bwlabel.m
-Eccentricity = 1;
+Eccentricity = 0.9;
 thrd_adjust = -100; 
 numberOfBins = 50; % Or whatever you want.
 ifgroupon = 1;  % 1: average distribution of the regions
-minDiam = 2/0.322;
+minDiam = 0/0.322;
 maxDiam = 30/0.322;
 SCALE = 0.322 / 2;
 
@@ -49,7 +51,7 @@ DivCell = struct2cell(group);
 %%
 Instruction.comparision = [1 2 3 4];
 compareDim(path_root, DivCell, Instruction, Axis, headfilename);
-%
+%%
 Selection = [4 4];
 Axis.xLim = [0 10];
 Axis.yLim = [0 60];

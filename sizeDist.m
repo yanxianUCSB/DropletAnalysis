@@ -1,81 +1,75 @@
-function sizeDist(path_root, ifgroupon, thrd_offset, ...
+function sizeDist(path_root, ifgroupon, thrd_adjust, ...
     bwlabelpara,...
     Eccentricity, ...
     numberOfBins,...
     SCALE, ...
     minDiam, maxDiam, headfilename)
-% Ver 3.0
-% Input and Output
-outputName = 'diameterDist';
-inputName = 'raw';
+% Ver 2.0
 
-% Function Definition
+analtype = 'diameterDist';
+inputtype = 'raw';
+if ~exist('path_root', 'var'),
+    path_root = uigetdir('C:/', analtype);    %Choose directory containing TIFF files.
+    %     path_root = 'D:\Desktop\Yanxian-to-backup\Yanxian-to-backup';  % Test
+end
+
+%% Load head.csv
 cellfind = @(string)(@(cell_contents)(strcmp(string,cell_contents)));
-
-% Load head.csv and get rid of empty rows
-head = read_mixed_csv([path_root, '\' inputName,'\', headfilename, '.csv'], ',');
+if ~exist('headfilename', 'var'),
+    headfilename = 'head';
+end
+csvfilename = [path_root, '\' inputtype,'\', headfilename, '.csv'];
+head = read_mixed_csv(csvfilename, ',');
 head(all(cellfun('isempty',head),2),:) = [];
+pathnameSave = [ analtype, '\'];
+mkdir([path_root, '\', pathnameSave]);
 
-% Get header and body
+%% Get header and body
 header = head(1,:);
 body = head(2:size(head,1),:);
+[om1, om2] = size(head);
 
-% Update Header
-if sum(cellfun(cellfind(outputName), header)) == 0,
-    header(size(header,2)+1) = {outputName};
+%% Update Header
+if sum(cellfun(cellfind(analtype), header)) == 0,
+    header(om2+1) = {analtype};
 end
-inputCol = find(cellfun(cellfind(inputName), header));
-outputCol = find(cellfun(cellfind(outputName), header));
+thisInputCol = find(cellfun(cellfind(inputtype), header));
+thisOutputCol = find(cellfun(cellfind(analtype), header));
 
-% Create output directory
-outputPath = [ outputName, '\'];
-mkdir([path_root, '\', outputPath]);
-
-% Subset body into subbodys containing groups of parallel trials
+%% Subset body
 if ifgroupon,
     subBodys = groupon(body, [2:6, 8:10]);
 else
-    subBodys = groupon(body, [inputCol]);
+    subBodys = groupon(body, [1]);
 end
 
 for subbodyi = 1:length(subBodys)
     subbody = subBodys{subbodyi};
     
-    % get filenames from each subbody
-    filenames = subbody(:, inputCol);
+    %% filenames
+    filenames = subbody(:, 1);
     
-    % Load tifData from filenames
-%     kk = 1;
-    diamCounts = [];
+    
+    %% Load tifData
+    kk = 1;
+    diamDistribution = [];
     for ii = 1:length(filenames)
-        [~, thisFileName, ~] = fileparts(filenames{ii});
-        load([path_root, '\', inputName, '\', thisFileName, '.mat'], 'tifData');
+        [filenamePath, filenameSample] = fileparts(filenames{ii});
+        load([path_root, '\', filenamePath, '\',...
+            inputtype, '\', filenameSample, '.mat'], 'tifData');
         S = tifData;
         
         %% thresholding images based on Ridler Calvard
-        %         Reference: [1]. T. W. Ridler, S. Calvard, Picture thresholding using an iterative selection method,
-        %            IEEE Trans. System, Man and Cybernetics, SMC-8, pp. 630-632, 1978.
+        %         Reference: [1]. T. W. Ridler, S. Calvard, Picture thresholding using an iterative selection method, 
+%            IEEE Trans. System, Man and Cybernetics, SMC-8, pp. 630-632, 1978.
         Im = S.imageData;
         [threshold, ~] = isodata(Im);
+ 
         IBW = ones(size(Im));
-        % Set threshold plus offset and convert biterate image to binary image.
-        IBW(threshold + thrd_offset <= Im) = 0;
+        IBW(threshold + thrd_adjust <= Im) = 0;
         
-        % Fill hollow structure in binary image to simply connected region.
+        %% BW fill
         binaryImage = imfill(IBW);
-        
-        %% find size distribution based on imfindcircles.m
-        % Specify range of particle radii
-        radiusRange = [1, 5; 5, 10; 10, 20; 20, 40; 40, 60; 60, 80; 80, 100;];
-        % Specify edge detection threshold (in case of blurry images)
-        EdgeThreshold = 0.01;
-        % Specify polarity
-        ObjectPolarity = 'bright';
-        % Specify Sensitivity
-        Sensitivity = 0.90;
-        % Call findcircles.m function
-        [centers,radii] = findcircles(radiusRange,Im,EdgeThreshold,ObjectPolarity,Sensitivity);
-        allDiameters = radii;
         %% Regionprops
         % Filter out extremely small or large or eccentric regions
 %         cc = bwconncomp(binaryImage); 
@@ -85,12 +79,12 @@ for subbodyi = 1:length(subBodys)
 %             [measurements.Eccentricity] < Eccentricity);
 %         binaryImage = ismember(labelmatrix(cc), idx);
 
-%         labeledImage = bwlabel(binaryImage); 
-%         measurements = regionprops(labeledImage, 'EquivDiameter','Eccentricity');
-%         idx = find([measurements.EquivDiameter] > minDiam & ...
-%             [measurements.EquivDiameter] < maxDiam & ... 
-%             [measurements.Eccentricity] < Eccentricity);
-%         binaryImage = ismember(labeledImage, idx);
+        labeledImage = bwlabel(binaryImage); 
+        measurements = regionprops(labeledImage, 'EquivDiameter','Eccentricity');
+        idx = find([measurements.EquivDiameter] > minDiam & ...
+            [measurements.EquivDiameter] < maxDiam & ... 
+            [measurements.Eccentricity] < Eccentricity);
+        binaryImage = ismember(labeledImage, idx);
         
 %         %% Regionprops
 %         labeledImage = bwlabel(binaryImage, bwlabelpara);
@@ -102,30 +96,27 @@ for subbodyi = 1:length(subBodys)
 %             [measurements.EquivDiameter] < maxDiam & ... 
 %             [measurements.Eccentricity] < Eccentricity);
                 
-%         allDiameters = [measurements.EquivDiameter];
-%         allDiameters = allDiameters(idx);
+        allDiameters = [measurements.EquivDiameter];
+        allDiameters = allDiameters(idx);
         
         %% scale diameters in unit of micrometer
         allDiameters2 = SCALE * allDiameters;  % 20X IX-70 microscope, 0.322 um/pixel
         minDiam2 = SCALE * minDiam;
         maxDiam2 = SCALE * maxDiam;
-        %         allDiameters = allDiameters(( minDiam <= allDiameters) & (allDiameters <= maxDiam));
+%         allDiameters = allDiameters(( minDiam <= allDiameters) & (allDiameters <= maxDiam));
         
         interval = abs(maxDiam2-minDiam2)/numberOfBins;
         [counts, binDiameters] = hist(allDiameters2, minDiam2:interval:maxDiam2);
         
-        % Truncate the diameter below the limit
-        counts = counts(2:end);
-        binDiameters = binDiameters(2:end);
+        diamDistribution(ii, :) = [counts];
         
-        diamCounts(ii, :) = [counts];
     end
     
     %% Average and Std
-    meanDiam = mean(diamCounts, 1);
-    stdDiam = std(diamCounts, 1);
-    if size(diamCounts, 1) == 1,
-        stdDiam = zeros(1, size(diamCounts, 2));
+    meanDiam = mean(diamDistribution, 1);
+    stdDiam = std(diamDistribution, 1);
+    if size(diamDistribution, 1) == 1,
+        stdDiam = zeros(1, size(diamDistribution, 2));
     end
     
     
@@ -134,7 +125,7 @@ for subbodyi = 1:length(subBodys)
     figDist = figure;
     hold on;
     
-    plotTitle = [inputName, ' ',thisFileName, ' Droplet Size Dist'];
+    plotTitle = [inputtype, ' ',filenameSample, ' Droplet Size Dist'];
     
     bar(binDiameters, meanDiam);
     errorbar(binDiameters, meanDiam, stdDiam,'.');
@@ -145,13 +136,13 @@ for subbodyi = 1:length(subBodys)
     ylabel('#');
     title(plotTitle);
     
-    %% percentage of dist
+    %% #% dist
     figDist2 = figure;
     hold on;
     
-    plotTitle2 = [inputName, ' ', thisFileName, ' Droplet Size Dist'];
+    plotTitle2 = [inputtype, ' ', filenameSample, ' Droplet Size Dist'];
     
-    normDist = 100*normr2(diamCounts);
+    normDist = 100*normr2(diamDistribution);
     normDistMean = mean(normDist, 1);
     normDistStd = std(normDist, 1);
     if size(normDist, 1) == 1,
@@ -168,22 +159,20 @@ for subbodyi = 1:length(subBodys)
     title(plotTitle2);
     
     %% Save size distribution figures
-    display(['saving ', thisFileName]);
-    filenameSave = [outputPath, thisFileName];
+    display(['saving ', filenameSample]);
+    filenameSave = [pathnameSave, filenameSample];
     export_fig([path_root, '\', filenameSave], figDist);
     export_fig([path_root, '\', filenameSave, '_prc'], figDist2);
     
     %% Save size recognition images
     fig3 = figure;
-%     I = uint16(zeros([size(binaryImage) 3]));
-%     I(:, :, 2) = reshape(2^8*double(tifData.imageData), ...
-%         size(binaryImage, 1), size(binaryImage, 2));
-%     I(:, :, 3) = I(:, :, 2);
-%     I(:, :, 1) = I(:, :, 2) + im2uint16(binaryImage);
-%     image(I);
+    I = uint16(zeros([size(binaryImage) 3]));
+    I(:, :, 2) = reshape(2^4*double(tifData.imageData), ...
+        size(binaryImage, 1), size(binaryImage, 2));
+    I(:, :, 3) = I(:, :, 2);
+    I(:, :, 1) = I(:, :, 2) + im2uint16(binaryImage);
+    image(I);
 %     imagesc(255*binaryImage);
-imshow(2^4*tifData.imageData);
-h = viscircles(centers, radii, 'EdgeColor', 'b');
     export_fig([path_root, '\', filenameSave, '_bw'], fig3);
     
     
@@ -201,7 +190,7 @@ h = viscircles(centers, radii, 'EdgeColor', 'b');
     %% update
     % update head.csv
     newsubbody(1, :) = subbody(1, :);
-    newsubbody(1, outputCol) = {filenameSave};
+    newsubbody(1, thisOutputCol) = {filenameSave};
     %% Combine new subbody
     if ~exist('newBody', 'var')
         newBody = {};
@@ -212,7 +201,7 @@ h = viscircles(centers, radii, 'EdgeColor', 'b');
 end
 
 newds = cell2dataset([header; newBody]);
-newcsvfilename = [path_root, '\', outputPath, headfilename, '.csv'];
+newcsvfilename = [path_root, '\', pathnameSave, headfilename, '.csv'];
 export(newds,'file',[newcsvfilename],'delimiter',',')
 
 
