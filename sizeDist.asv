@@ -71,17 +71,16 @@ for subbodyi = 1:length(subBodys)
         %% Regionprops
         labeledImage = bwlabel(binaryImage); 
         stats = regionprops('table',labeledImage, 'EquivDiameter','Eccentricity',...
-            'Centroid', 'MajorAxisLength','MinorAxisLength');
-        
+            'Centroid', 'MajorAxisLength','MinorAxisLength', 'ConvexImage');
+        centers = stats.Centroid;
+        diameters = mean([stats.MajorAxisLength stats.MinorAxisLength],2);
+        radii = diameters/2;
         idx = find([stats.EquivDiameter] > minDiam & ...
             [stats.EquivDiameter] < maxDiam & ... 
             [stats.Eccentricity] < Eccentricity);
         binaryImage = ismember(labeledImage, idx);
         allDiameters = stats.EquivDiameter(idx);
-        diameters = mean([stats.MajorAxisLength stats.MinorAxisLength],2);
-        radii = diameters(idx)/2;
-        centers = stats.Centroid(idx,:);
-
+        
         %% scale diameters in unit of micrometer
         allDiameters2 = SCALE * allDiameters;  % 20X IX-70 microscope, 0.322 um/pixel
         minDiam2 = SCALE * minDiam;
@@ -157,7 +156,8 @@ for subbodyi = 1:length(subBodys)
     imshow(I);
     
     % 
-    viscircles(centers, radii, 'Color', 'b');
+
+    viscircles(centers,radii, 'Color', 'b');
     
 %     imagesc(255*binaryImage);
     export_fig([path_root, '\', filenameSave, '_bw'], fig3);
