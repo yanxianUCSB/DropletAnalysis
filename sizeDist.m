@@ -74,7 +74,7 @@ for subbodyi = 1:length(subBodys)
         % Specify Sensitivity
         Sensitivity = 0.90;
         % Call findcircles.m function
-        [centers,radii] = findcircles(radiusRange,Im,EdgeThreshold,ObjectPolarity,Sensitivity);
+        [centers,radii] = findcircles(radiusRange,binaryImage,EdgeThreshold,ObjectPolarity,Sensitivity);
         allDiameters = radii;
         %% Regionprops
         % Filter out extremely small or large or eccentric regions

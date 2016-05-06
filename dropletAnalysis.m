@@ -16,7 +16,7 @@ headfilename = 'head';
 %% Generate Size Distribution
 bwlabelpara = 4;  % lookup bwlabel.m
 Eccentricity = 1;
-thrd_adjust = -100; 
+thrd_adjust = -20; 
 numberOfBins = 50; % Or whatever you want.
 ifgroupon = 1;  % 1: average distribution of the regions
 minDiam = 2/0.322;
