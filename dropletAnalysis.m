@@ -1,7 +1,7 @@
 function path_root = dropletAnalysis(path_root)
 
 %% Set Default path of the head file
-path_root = 'F:\Documents\Doc-Research\Doc-20150324-Tau Droplet\data\050616';
+% path_root = 'F:\Documents\Doc-Research\Doc-20150324-Tau Droplet\data\042016';
 
 if ~exist('path_root', 'var')
     path_root = uigetdir('C:/', 'Choose directory where the head.csv is');    %Choose directory containing TIFF files.
@@ -23,7 +23,7 @@ minDiam = 2/0.322;
 maxDiam = 30/0.322;
 SCALE = 0.322 / 2;
 
-set(0,'DefaultFigureVisible','off');
+set(0,'DefaultFigureVisible','on');
 
 % sizeDist(path_root, ifgroupon, thrd_adjust, ...
 %     bwlabelpara,...

@@ -106,29 +106,32 @@ for zi = 1:subplotsz
         binDiameters = [binDiameters; S.binDiameters];
     end
     %% Plot size dist
-    hold all;
-    for iiii = 1:size(meanDiam,1),
-        
-        lineProps.width = 1.5;
-        lineProps.col = {getColor(iiii)};
-        transparent = 1;
-        mseb(binDiameters(iiii, :), meanDiam(iiii, :), stdDiam(iiii, :), lineProps, transparent);
-    end
-
+%     hold all;
+%     for iiii = 1:size(meanDiam,1),
+%         
+%         lineProps.width = 1.5;
+%         lineProps.col = {getColor(iiii)};
+%         transparent = 1;
+% %         mseb(binDiameters(iiii, :), meanDiam(iiii, :), stdDiam(iiii, :), lineProps, transparent);
+%             plot(binDiameters(iiii, :), meanDiam(iiii, :), ...
+%                 'LineWidth', 1.5, 'Color', getColor(iiii));
+%         
+%     end
+% 
+%     thislegendi = Intruct.col(Intruct.comparision(1));
+%     salts = round(100*cellfun(@str2num, subbody(:,thislegendi))) / 100;
+%     for kim = 1:size(subbody(:,thislegendi), 1)
+%         LG{kim} = strjoin([{Intruct.names{dimi}},...
+%             {' = '}, {num2str(salts(kim))}, {' '}, ...
+%             {Axis.Units{dimi}}]);
+%     end
+%     legend([LG], 'Location', 'NorthEast');
+%     
+%     for iiii = 1:size(meanDiam,1)
+%         errorbar(binDiameters(iiii, :), meanDiam(iiii, :), stdDiam(iiii, :), 'Color', getColor(iiii));
+%     end
     
-    
-    thislegendi = Intruct.col(Intruct.comparision(1));
-    salts = round(100*cellfun(@str2num, subbody(:,thislegendi))) / 100;
-    for kim = 1:size(subbody(:,thislegendi), 1)
-        LG{kim} = strjoin([{Intruct.names{dimi}},...
-            {' = '}, {num2str(salts(kim))}, {' '}, ...
-            {Axis.Units{dimi}}]);
-    end
-    legend([LG], 'Location', 'NorthEast');
-    
-    
-    
-    
+createfigure(binDiameters(1,:)', meanDiam', binDiameters', meanDiam', stdDiam');
     
     %Saving eps with matlab and then producing pdf and png with system commands
     %     dimi = Instruction.comparision(1);
@@ -138,16 +141,17 @@ for zi = 1:subplotsz
     %         num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}]);
     
     %% F_cking Title
-    [ax h] = suplabel(['Size Distribution of ', Intruct.names{dimz}, ' at ', ...
-        filenameSample],'t');
+%     [ax h] = suplabel(['Size Distribution of ', Intruct.names{dimz}, ' at ', ...
+%         filenameSample],'t');
     %% Save pdf
     display(['saving ', filenameSample]);
     filenameSave = [pathnameSave, filenameSample];
     export_fig([path_root, '\', filenameSave], gcf);
     print(gcf, '-dpdf','-loose',[path_root, '\', filenameSave,'.pdf']);
+    print(gcf, '-depsc',[path_root, '\', filenameSave,'.eps']);
     display(['saved']);
     
-    close all;
+%     close all;
 end
 
 %% Save newHead
