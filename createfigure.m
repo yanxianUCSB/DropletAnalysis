@@ -25,17 +25,15 @@ hold(axes1,'on');
 
 % Create multiple lines using matrix input to plot
 plot1 = plot(X1,YMatrix1,'Parent',axes1,'LineWidth',2.5);
-set(plot1(1),'DisplayName','NaCl = 0   mM','Color',[1 0 1]);
-set(plot1(2),'DisplayName','NaCl = 0.1 mM','Color',[1 0 0]);
-set(plot1(3),'DisplayName','NaCl = 1.0 mM', 'Color',[0 1 0]);
-set(plot1(4),'DisplayName','NaCl = 10  mM', 'Color',[0 0 1]);
+for iii = 1:size(YMatrix1, 2)
+    set(plot1(iii),'Color',getColor(iii));
+end
 
 % Create multiple error bars using matrix input to errorbar
 errorbar1 = errorbar(XMatrix1,YMatrix2,EMatrix1,'LineWidth',1);
-set(errorbar1(1),'Color',[1 0 1]);
-set(errorbar1(2),'Color',[1 0 0]);
-set(errorbar1(3),'Color',[0 1 0]);
-set(errorbar1(4),'Color',[0 0 1]);
+for iii = 1:size(EMatrix1, 2)
+    set(errorbar1(iii),'Color',getColor(iii));
+end
 
 % Create xlabel
 xlabel('Equivalent Diameter /\mum');
@@ -52,6 +50,9 @@ box(axes1,'on');
 set(axes1,'FontSize',14,'LineWidth',1.75,'TitleFontSizeMultiplier',1,...
     'TitleFontWeight','normal','XGrid','off');
 % Create legend
-legend(axes1,'NaCl = 0    mM', 'NaCl = 0.1 mM', 'NaCl = 1    mM', ...
-    'NaCl = 10  mM');
+legend(axes1,...
+    'Trial 1',...
+    'Trial 2', ...
+    'Trial 3', ...
+    'Trial 4');
 

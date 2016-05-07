@@ -133,17 +133,11 @@ for zi = 1:subplotsz
     
 createfigure(binDiameters(1,:)', meanDiam', binDiameters', meanDiam', stdDiam');
     
-    %Saving eps with matlab and then producing pdf and png with system commands
-    %     dimi = Instruction.comparision(1);
+    %% Save
+    % Saving eps with matlab and then producing pdf and png with system commands
     dc = Group{dimz};
     filenameSample = ([Intruct.names{Intruct.comparision(4)}, num2str(dc(zi))]);
-    %     filenameSample = ([Instruction.names{dimz}, ' ', num2str(Selection), ' ', ...
-    %         num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}]);
     
-    %% F_cking Title
-%     [ax h] = suplabel(['Size Distribution of ', Intruct.names{dimz}, ' at ', ...
-%         filenameSample],'t');
-    %% Save pdf
     display(['saving ', filenameSample]);
     filenameSave = [pathnameSave, filenameSample];
     export_fig([path_root, '\', filenameSave], gcf);
