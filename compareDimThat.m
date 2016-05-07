@@ -1,16 +1,10 @@
-function compareDim(path_root, DivCell, Instruction, Axis, headfilename)
+function compareDimThat(path_root, DivCell, Instruction, Axis, Selection, headfilename)
 % Ver 4.0
 % comparision = [dim1 dim2 dim3 dim4] showing the way to present data
-Selection = [];
 
 analtype = 'compareDim';
 inputtype = 'diameterDist';
-if ~exist('path_root', 'var'),
-    path_root = uigetdir('C:/', analtype);    %Choose directory containing TIFF files.
-end
-if ~exist('headfilename', 'var'),
-    headfilename = 'head';
-end
+
 %% Make Output Dir
 pathnameSave = [ analtype, '\'];
 mkdir([path_root, '\', pathnameSave]);
@@ -57,28 +51,12 @@ subplotsy = length(DivCell{dimy});
 subplotsz = length(DivCell{dimz});
 
 
-if ~isempty(Selection)
-    
-    figurePublish();
 
-    theseRows = ismember(divIndexCell{dimx}, Selection(1)) & ...
-        ismember(divIndexCell{dimy}, Selection(2));
-    
-    body = body(theseRows, :);
-    for divi = 1:length(DivCell)
-        thisdivIndex = divIndexCell{divi};
-        divIndexCell{divi} = thisdivIndex(theseRows);
-    end
-    
-    subplotsx = 1;
-    subplotsy = 1;
-    tmp = DivCell{dimx};
-    DivCell{dimx} = tmp(Selection(1));
-    tmp = DivCell{dimy};
-    DivCell{dimy} = tmp(Selection(2));
-end
 
 for zi = 1:subplotsz
+    if zi ~= Selection(3)
+        continue
+    end
         %% parameters for figure and panel size
         plotheight=20;
         plotwidth=16;
@@ -91,7 +69,7 @@ for zi = 1:subplotsz
         spacex=0.2;
         spacey=0.2;
         fontsize=5;
-        sub_pos=subplot_pos(plotwidth,plotheight,leftedge,rightedge,bottomedge,topedge,subplotsx,subplotsy,spacex,spacey);
+        sub_pos=subplot_pos(plotwidth,plotheight,leftedge,rightedge,bottomedge,topedge,1,1,spacex,spacey);
         
         %setting the Matlab figure
         f=figure('visible','off');
@@ -103,52 +81,45 @@ for zi = 1:subplotsz
     
     %% loop to create axes
     for xi=1:subplotsx
+        if xi~=Selection(1)
+            continue
+        end
         for yi=1:subplotsy
+            if yi~=Selection(2)
+                continue
+            end
             
-            ax=axes('position',sub_pos{xi,yi},'XGrid','off','XMinorGrid','off','FontSize',fontsize,'Box','on','Layer','top');
+            ax=axes('position',sub_pos{1,1},'XGrid','off','XMinorGrid','off','FontSize',fontsize,'Box','on','Layer','top');
                         
  
-            if yi==subplotsy
                 dc = DivCell{dimz};
                 title([Instruction.names{dimz},' ', ...
                     num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}])
-            end
+          
             
-            if yi>1
-                set(ax,'xticklabel',[])
-            end
+
             
-            if xi>1
-                set(ax,'yticklabel',[])
-            end
-            
-            if xi==1
                 %                 dimi = Instruction.comparision(2);
                 dc = DivCell{dimy};
                 ylabel([Instruction.names{dimy},' ', ...
                     num2str(round(dc(yi)*100)/100),' ', Axis.Units{dimy}])
                 %                 ylabel(['RNA ',num2str(round(rna(yi)*10)/10),' ug/mL'])
                 set(ax,'yLim',Axis.yLim);
-            end
+
             
 
             
-            if yi==1
                 %                 dimi = Instruction.comparision(3);
                 dc = DivCell{dimx};
                 xlabel([Instruction.names{dimx},' ', ...
                     num2str(round(dc(xi)*100)/100),' ', Axis.Units{dimx}])
                 %                 xlabel(['Tau ',num2str(round(tau(xi)*10)/10),' uM'])
                 set(ax,'xLim',Axis.xLim);
-            end
             
-            
-            subbody = body(xi == divIndexCell{dimx} & ...
-                yi == divIndexCell{dimy} &...
-                zi == divIndexCell{dimz}, :);
-            if ~isempty(Selection)
-                subbody = body;
-            end
+                subbody = body((xi == divIndexCell{dimx}) & ...
+                (yi == divIndexCell{dimy}) &...
+                (zi == divIndexCell{dimz}), :);
+                
             if size(subbody, 1) == 0
                 continue
             end
@@ -176,21 +147,33 @@ for zi = 1:subplotsz
             %% Plot size dist
             hold all;
             for iiii = 1:size(meanDiam,1),
-                plot(binDiameters(iiii, :), meanDiam(iiii, :), 'LineWidth', 1.0, 'Color', getColor(iiii));
+                
+                lineProps.width = 1.5;
+                lineProps.col = {getColor(iiii)};
+                transparent = 1;
+                mseb(binDiameters(iiii, :), meanDiam(iiii, :), stdDiam(iiii, :),...
+                    lineProps, transparent);
+%                 plot(binDiameters(iiii, :), meanDiam(iiii, :), 'LineWidth', 1.5, 'Color', getColor(iiii));
                 
             end
-            for iiii = 1:size(meanDiam,1),
-                plot(binDiameters(iiii, :), meanDiam(iiii, :) + stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
-                plot(binDiameters(iiii, :), meanDiam(iiii, :) - stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
-                %                 errorbar(binDiameters(ii, :), meanDiam(ii, :), stdDiam(ii, :),':');
-            end
+%             for iiii = 1:size(meanDiam,1),
+%                 plot(binDiameters(iiii, :), meanDiam(iiii, :) + stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
+%                 plot(binDiameters(iiii, :), meanDiam(iiii, :) - stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
+%                 %                 errorbar(binDiameters(ii, :), meanDiam(ii, :), stdDiam(ii, :),':');
+%             end
             xlim(Axis.xLim);
             ylim(Axis.yLim);
             
+            
             thislegendi = Instruction.col(Instruction.comparision(1));
-            h_legend = legend([num2str(round(100*cellfun(@str2num, subbody(:, thislegendi)))/100)],...
+            salts = round(100*cellfun(@str2num, subbody(:,thislegendi))) / 100;
+            for kim = 1:size(subbody(:,thislegendi), 1)
+                LG{kim} = strjoin([{Instruction.names{dimi}},...
+                    {' = '}, {num2str(salts(kim))}, {' '}, ...
+                    {Axis.Units{dimi}}]);
+            end
+            h_legend = legend([LG],...
                 'Location', 'NorthEast');
-            %             set(h_legend,'FontSize', 5);
 
             
         end
@@ -206,16 +189,17 @@ for zi = 1:subplotsz
     %% F_cking Title
     [ax h] = suplabel(['Size Distribution of ', Instruction.names{dimz}, ' at ', ...
         filenameSample],'t');
-    %%
+    %% Save pdf
     display(['saving ', filenameSample]);
     filenameSave = [pathnameSave, filenameSample];
     export_fig([path_root, '\', filenameSave], gcf);
     print(gcf, '-dpdf','-loose',[path_root, '\', filenameSave,'.pdf']);
     display(['saved']);
     
-    % system(['epstopdf ',filename,'.eps'])
-    % system(['convert -density 300 ',filename,'.eps ',filename,'.png'])
-    
-    
     close all;
 end
+
+%% Save newHead
+newds = cell2dataset([header; body]);
+newcsvfilename = [path_root, '\', pathnameSave, headfilename, '.csv'];
+export(newds,'file',[newcsvfilename],'delimiter',',');

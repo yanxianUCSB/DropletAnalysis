@@ -5,12 +5,7 @@ Selection = [];
 
 analtype = 'compareDim';
 inputtype = 'diameterDist';
-if ~exist('path_root', 'var'),
-    path_root = uigetdir('C:/', analtype);    %Choose directory containing TIFF files.
-end
-if ~exist('headfilename', 'var'),
-    headfilename = 'head';
-end
+
 %% Make Output Dir
 pathnameSave = [ analtype, '\'];
 mkdir([path_root, '\', pathnameSave]);
