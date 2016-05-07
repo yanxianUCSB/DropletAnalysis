@@ -72,10 +72,10 @@ for zi = 1:subplotsz
     xi=selectedCol(1);
     yi=selectedCol(2);
     ax=axes();
-    set(ax,'yLim', Axis.yLim);
-    set(ax,'xLim', Axis.xLim);
-    xlabel(ax, Axis.xLabel);
-    ylabel(ax, Axis.yLabel);
+    set(ax,'yLim',Axis.yLim);
+    set(ax,'xLim',Axis.xLim);
+    set(ax,'xLabel',Axis.xLabel);
+    set(ax,'yLabel',Axis.yLabel);
     
     subbody = body((xi == divIndexCell{dimx}) & ...
         (yi == divIndexCell{dimy}) &...
@@ -112,9 +112,13 @@ for zi = 1:subplotsz
         lineProps.width = 1.5;
         lineProps.col = {getColor(iiii)};
         transparent = 1;
-        mseb(binDiameters(iiii, :), meanDiam(iiii, :), stdDiam(iiii, :), lineProps, transparent);
+        mseb(binDiameters(iiii, :), meanDiam(iiii, :), stdDiam(iiii, :),...
+            lineProps, transparent);
+        
     end
-
+    
+    xlim(Axis.xLim);
+    ylim(Axis.yLim);
     
     
     thislegendi = Intruct.col(Intruct.comparision(1));
