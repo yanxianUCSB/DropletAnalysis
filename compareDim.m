@@ -31,7 +31,7 @@ body = chead(2:size(chead, 1),:);
 
 %% Update Header
 if sum(cellfun(cellfind(analtype), header)) == 0,
-    header = [header, {analtype}];
+%     header = [header, {analtype}];
 end
 thisInputCol = find(cellfun(cellfind(inputtype), header));
 thisOutputCol = find(cellfun(cellfind(analtype), header));
@@ -42,29 +42,20 @@ for divi = 1:length(DivCell)
     DIV1 = DivCell{divi};
     [thisdiv, ~, thisdivIndex] = uniquetol2(str2double(tc), DIV1);
     body = [body, strtrim(cellstr(num2str(thisdiv(thisdivIndex))))];
+    header = [header, {['DivIndex', num2str(divi)]}];
     divIndexCell{divi} = thisdivIndex;
 end
+newHead = [header; body];
 
-% [salt, ~, saltindex] = uniquetol2(str2double(head.salt), DIV1);
-% body = [body, strtrim(cellstr(num2str(salt(saltindex))))];
-% [tau, ~, tauIndex] = uniquetol2(str2double(head.tau), DIV2);
-% body = [body, strtrim(cellstr(num2str(tau(tauIndex))))];
-% [rna, ~, rnaIndex] = uniquetol2(str2double(head.rna), DIV3);
-% body = [body, strtrim(cellstr(num2str(rna(rnaIndex))))];
-% [glycerol, ~, glycerolIndex] = uniquetol2(str2double(head.glycerol), DIV4);
-% body = [body, strtrim(cellstr(num2str(glycerol(glycerolIndex))))];
-
-% ed = size(body,2) - length(Instruction.comparision);
-% subBodys = groupon(body, ed+Instruction.comparision(2:4));
-% subBodys = groupon(body, size(body,2)-2:size(body,2));
-% sl = length(DivCell{1});
-subplotsx = length(DivCell{2});
-subplotsy = length(DivCell{3});
-subplotsz = length(DivCell{4});
+%%
 dimi = Instruction.comparision(1);
 dimx = Instruction.comparision(2);
 dimy = Instruction.comparision(3);
 dimz = Instruction.comparision(4);
+subplotsx = length(DivCell{dimx});
+subplotsy = length(DivCell{dimy});
+subplotsz = length(DivCell{dimz});
+
 
 if ~isempty(Selection)
     
@@ -118,9 +109,9 @@ for zi = 1:subplotsz
                         
  
             if yi==subplotsy
-                dc = DivCell{dimi};
-                title([Instruction.names{dimi},' ', ...
-                    num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimi}])
+                dc = DivCell{dimz};
+                title([Instruction.names{dimz},' ', ...
+                    num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}])
             end
             
             if yi>1
@@ -208,23 +199,24 @@ for zi = 1:subplotsz
     %Saving eps with matlab and then producing pdf and png with system commands
 %     dimi = Instruction.comparision(1);
     dc = DivCell{dimz};
-    filenameSample = ([Instruction.names{Instruction.comparision(1)}, num2str(zi)]);
+    filenameSample = ([Instruction.names{Instruction.comparision(4)}, num2str(dc(zi))]);
 %     filenameSample = ([Instruction.names{dimz}, ' ', num2str(Selection), ' ', ...
 %         num2str(round(dc(zi)*100)/100),' ', Axis.Units{dimz}]);
     
     %% F_cking Title
-    [ax h] = suplabel(['Size Distribution of ', Instruction.names{dimi}, ' at ', ...
+    [ax h] = suplabel(['Size Distribution of ', Instruction.names{dimz}, ' at ', ...
         filenameSample],'t');
-    %%
+    %% Save pdf
     display(['saving ', filenameSample]);
     filenameSave = [pathnameSave, filenameSample];
     export_fig([path_root, '\', filenameSave], gcf);
     print(gcf, '-dpdf','-loose',[path_root, '\', filenameSave,'.pdf']);
     display(['saved']);
     
-    % system(['epstopdf ',filename,'.eps'])
-    % system(['convert -density 300 ',filename,'.eps ',filename,'.png'])
-    
-    
     close all;
 end
+
+%% Save newHead
+newds = cell2dataset([header; body]);
+newcsvfilename = [path_root, '\', pathnameSave, headfilename, '.csv'];
+export(newds,'file',[newcsvfilename],'delimiter',',');
