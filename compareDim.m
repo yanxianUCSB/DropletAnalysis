@@ -51,34 +51,10 @@ subplotsx = length(DivCell{dimx});
 subplotsy = length(DivCell{dimy});
 subplotsz = length(DivCell{dimz});
 
-
-if ~isempty(Selection)
-    
-    figurePublish();
-
-    theseRows = ismember(divIndexCell{dimx}, Selection(1)) & ...
-        ismember(divIndexCell{dimy}, Selection(2));
-    
-    body = body(theseRows, :);
-    for divi = 1:length(DivCell)
-        thisdivIndex = divIndexCell{divi};
-        divIndexCell{divi} = thisdivIndex(theseRows);
-    end
-    
-    subplotsx = 1;
-    subplotsy = 1;
-    tmp = DivCell{dimx};
-    DivCell{dimx} = tmp(Selection(1));
-    tmp = DivCell{dimy};
-    DivCell{dimy} = tmp(Selection(2));
-end
-
 for zi = 1:subplotsz
         %% parameters for figure and panel size
         plotheight=20;
         plotwidth=16;
-        %     subplotsx=subplotsx;
-        %     subplotsy=subplotsy;
         leftedge=1.2;
         rightedge=0.4;
         topedge=1;
@@ -175,9 +151,9 @@ for zi = 1:subplotsz
                 
             end
             for iiii = 1:size(meanDiam,1),
-                plot(binDiameters(iiii, :), meanDiam(iiii, :) + stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
-                plot(binDiameters(iiii, :), meanDiam(iiii, :) - stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
-                %                 errorbar(binDiameters(ii, :), meanDiam(ii, :), stdDiam(ii, :),':');
+%                 plot(binDiameters(iiii, :), meanDiam(iiii, :) + stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
+%                 plot(binDiameters(iiii, :), meanDiam(iiii, :) - stdDiam(iiii, :),'-.', 'Color', getColor(iiii));
+                errorbar(binDiameters(iiii, :), meanDiam(iiii, :), stdDiam(iiii, :), 'Color', getColor(iiii));
             end
             xlim(Axis.xLim);
             ylim(Axis.yLim);
