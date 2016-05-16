@@ -1,14 +1,14 @@
 function path_root = dropletAnalysis(path_root)
 
 %% Set path of the head file
-% path_root = 'F:\Documents\Doc-Research\Doc-20150324-Tau Droplet\data\050616';
+path_root = 'F:\Documents\Doc-Research\Doc-20150324-Tau Droplet\data\test';
 
 if ~exist('path_root', 'var')
     path_root = uigetdir('C:/', 'Choose directory where the head.csv is');    %Choose directory containing TIFF files.
 end
 
 % Head Filename
-headfilename = 'headVer05061601';
+headfilename = 'head';
 
 %% process Tifs
 processTifs([path_root, '\\raw']);
@@ -25,7 +25,11 @@ SCALE = 0.322 / 2;
 
 set(0,'DefaultFigureVisible','off');
 
-sizeDist(path_root, ifgroupon, thrd_adjust, ...
+h = Head();
+h.path_root = path_root; 
+h.headfilename = 'head';
+
+sizeDist2(path_root, ifgroupon, thrd_adjust, ...
     bwlabelpara,...
     Eccentricity, ...
     numberOfBins,...

@@ -1,0 +1,65 @@
+classdef Head
+    properties
+        path_root
+        headfilename
+        csvfilename
+        inputtype
+        inputCol
+        outputtype
+        outputCol
+        head
+        header
+        body
+        subBodys
+        pathnameSave
+    end
+    methods
+        % Set
+        function obj = set.path_root(obj, path_root)
+            obj.path_root = path_root;
+        end
+        function obj = set.inputtype(obj, inputtype)
+            obj.inputtype = inputtype;
+        end
+        function obj = set.outputtype(obj, outputtype)
+            obj.outputtype = outputtype;
+        end
+        function obj = set.headfilename(obj, headfilename)
+            obj.headfilename = headfilename;
+        end
+        % Initilization
+        function obj = init(obj)
+            obj = obj.loadhead();
+            obj.header = obj.head(1,:);
+            obj.body = obj.head(2:size(obj.head,1),:);
+            obj.pathnameSave = [ obj.outputtype, '\'];
+            obj = obj.updateIOCol();
+        end
+
+        % Update
+        function obj = updateHeader(obj)
+            if sum(strcmp(obj.outputtype, obj.header)) == 0,
+                obj.header(end+1) = {obj.outputtype};
+                obj = obj.updateIOCol();
+            end
+        end
+        function obj = updateIOCol(obj)
+            obj.inputCol = strcmp(obj.inputtype, obj.header);
+            obj.outputCol = strcmp(obj.outputtype, obj.header);
+        end
+        % I/O
+        function obj = loadhead(obj)
+            obj.csvfilename = [obj.path_root, '\' obj.inputtype,'\', obj.headfilename, '.csv'];
+            obj.head = read_mixed_csv(obj.csvfilename, ',');
+        end
+        function makedir(obj)
+            if ~isdir([obj.path_root, '\', obj.pathnameSave])
+                mkdir([obj.path_root, '\', obj.pathnameSave]);
+            end
+        end
+        %
+        function obj = group(obj, vec)
+            obj.subBodys = groupon(obj.body, vec);
+        end
+    end
+end
