@@ -105,19 +105,35 @@ for subbodyi = 1:length(subBodys)
     
     %% Plot size dist
     
-    figDist = figure;
-    hold on;
+    figDist = figure(...
+        'visible','off',...
+        'PaperOrientation','landscape',...
+        'Color',[1 1 1]);
+    % Create axes
+    axes('Parent',figDist,...
+        'Tag','suplabel');
+    axis off
+    % Create axes
+    axes1 = axes('Parent',figDist);
+    hold(axes1,'on');
+    set(axes1,'FontSize',20,...
+        'LineWidth',1.75,...
+        'TitleFontSizeMultiplier',1,...
+        'TitleFontWeight','normal',...
+        'XGrid','off');
+    
+%     hold on;
     
     plotTitle = [inputtype, ' ',filenameSample, ' Droplet Size Dist'];
     
-    bar(binDiameters, meanDiam);
-    errorbar(binDiameters, meanDiam, stdDiam,'.');
+    bar(binDiameters, meanDiam, 'Parent', axes1);
+    errorbar(binDiameters, meanDiam, stdDiam,'.', 'LineWidth',1.5);
     
     xlim([minDiam2, maxDiam2]);
     ylim([0, 100]);
-    xlabel('diameter/[\mum]');
-    ylabel('#');
-    title(plotTitle);
+%     xlabel('diameter/[\mum]');
+%     ylabel('#');
+%     title(plotTitle);
     
     %% #% dist
     figDist2 = figure;
