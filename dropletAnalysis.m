@@ -8,20 +8,20 @@ if ~exist('path_root', 'var')
 end
 
 % Head Filename
-headfilename = 'head-N';
+headfilename = 'head-tRNA-salt';
 
 %% process Tifs
 % processTifs([path_root, '\\raw']);
 
 %% Calculate Size Distribution
-bwlabelpara = 4;  % lookup bwlabel.m
-Eccentricity = 0.7;  % Threshold for Eccentricity
-thrd_adjust = -100;  % Intensity threshold offset
-numberOfBins = 50; % Or whatever you want.
+bwlabelpara = 8;  % lookup bwlabel.m
+Eccentricity = 0.9;  % Threshold for Eccentricity
+thrd_adjust = -240;  % Intensity threshold offset
+numberOfBins = 9; % Or whatever you want.
 ifgroupon = 1;  % 1: average distribution of the regions
-minDiam = 2/0.322;
-maxDiam = 30/0.322;
 SCALE = 0.322 / 2;
+minDiam = 1 / SCALE;
+maxDiam = 10 / SCALE;
 
 set(0,'DefaultFigureVisible','off');
 

@@ -50,6 +50,7 @@ for subbodyi = 1:length(subBodys)
     % Load tifData
     kk = 1;
     diamDistribution = [];
+    ALLParticles = [];
     for ii = 1:length(filenames)
         [filenamePath, filenameSample] = fileparts(filenames{ii});
         load([path_root, '\', filenamePath, '\',...
@@ -60,8 +61,8 @@ for subbodyi = 1:length(subBodys)
         %         Reference: [1]. T. W. Ridler, S. Calvard, Picture thresholding using an iterative selection method, 
 %            IEEE Trans. System, Man and Cybernetics, SMC-8, pp. 630-632, 1978.
         Im = S.imageData;
-        [threshold, ~] = isodata(Im);
- 
+%         [threshold, ~] = isodata(Im);
+ threshold = mean(mean(Im));
         IBW = ones(size(Im));
         IBW(threshold + thrd_adjust <= Im) = 0;
         
@@ -92,14 +93,13 @@ for subbodyi = 1:length(subBodys)
         [counts, binDiameters] = hist(allDiameters2, minDiam2:interval:maxDiam2);
         
         diamDistribution(ii, :) = [counts];
-        
     end
     
     %% Average and Std
-    meanDiam = mean(diamDistribution, 1);
-    stdDiam = std(diamDistribution, 1);
+    meanCount = mean(diamDistribution, 1);
+    stdCount = std(diamDistribution, 1);
     if size(diamDistribution, 1) == 1,
-        stdDiam = zeros(1, size(diamDistribution, 2));
+        stdCount = zeros(1, size(diamDistribution, 2));
     end
     
     
@@ -126,11 +126,11 @@ for subbodyi = 1:length(subBodys)
     
     plotTitle = [inputtype, ' ',filenameSample, ' Droplet Size Dist'];
     
-    bar(binDiameters, meanDiam, 'Parent', axes1);
-    errorbar(binDiameters, meanDiam, stdDiam,'.', 'LineWidth',1.5);
+    bar(binDiameters, meanCount, 'Parent', axes1, 'BarWidth', 1.0);
+    errorbar(binDiameters, meanCount, stdCount,'.', 'LineWidth',1.5);
     
     xlim([minDiam2, maxDiam2]);
-    ylim([0, 100]);
+    ylim([0,   200  ]);
 %     xlabel('diameter/[\mum]');
 %     ylabel('#');
 %     title(plotTitle);
@@ -179,12 +179,12 @@ for subbodyi = 1:length(subBodys)
     export_fig([path_root, '\', filenameSave, '_bw'], fig3);
     
     
-    S.meanDiam = meanDiam;
-    S.stdDiam = stdDiam;
+    S.meanDiam = meanCount;
+    S.stdDiam = stdCount;
     S.binDiameters = binDiameters;
     save([path_root, '\', filenameSave, '.mat'], 'S');
     try
-        csvwrite([path_root, '\', filenameSave, '.csv'], [binDiameters', meanDiam', stdDiam']);
+        csvwrite([path_root, '\', filenameSave, '.csv'], [binDiameters', meanCount', stdCount']);
     catch
     end
     display('saved');
