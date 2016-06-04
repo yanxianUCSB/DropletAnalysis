@@ -63,6 +63,7 @@ for subbodyi = 1:length(subBodys)
         Im = S.imageData;
 %         [threshold, ~] = isodata(Im);
  threshold = mean(mean(Im));
+ threshold = 3.5950e+03;
         IBW = ones(size(Im));
         IBW(threshold + thrd_adjust <= Im) = 0;
         
