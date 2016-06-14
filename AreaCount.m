@@ -52,7 +52,7 @@ for subbodyi = 1:length(subBodys)
     % Load tifData
 %     kk = 1;
     diamDistribution = [];
-Areas = [];
+    Areas = [];
     for ii = 1:length(filenames)
         [filenamePath, filenameSample] = fileparts(filenames{ii});
         load([path_root, '\', filenamePath, '\',...
@@ -89,6 +89,9 @@ Areas = [];
         stdArea = 0;
     end
 
+    %% Ratio and Salt
+    Salt = str2num(subbody{1, 2});
+    Ratio = str2num(subbody{1, 3})*22./str2num(subbody{1,4});
     
     
     %% Save size recognition images
@@ -106,7 +109,7 @@ Areas = [];
     filenameSave = [pathnameSave, filenameSample];
     
     display(['saving ', filenameSample]);
-    export_fig([path_root, '\', filenameSave, '_bw'], fig3);
+%     export_fig([path_root, '\', filenameSave, '_bw'], fig3);
     
     
     %% update
@@ -115,6 +118,9 @@ Areas = [];
     newsubbody(1, thisOutputCol) = {filenameSave};
     newsubbody(1, thisOutputCol+1) = {meanArea};
     newsubbody(1, thisOutputCol+2) = {stdArea};
+    newsubbody(1, thisOutputCol+3) = {Salt};
+    newsubbody(1, thisOutputCol+4) = {Ratio};
+
 
     %% Combine new subbody
     if ~exist('newBody', 'var')
@@ -129,8 +135,36 @@ end
 
 header(end+1) = {'MeanArea'};
 header(end+1) = {'StdArea'};
+header(end+1) = {'Salt'};
+header(end+1) = {'Ratio'};
+
 newds = cell2dataset([header; newBody]);
 newcsvfilename = [path_root, '\', pathnameSave, headfilename, '.csv'];
 export(newds,'file',[newcsvfilename],'delimiter',',')
 
+%% Save Salt and Ratio figures
+Axis.title = [];
+Axis.legend = [];
+Axis.xLabel = 'NaCl [mM]';
+Axis.yLabel = 'Coverage [%]';
+[X, I]= sort(cell2mat(newBody(:, thisOutputCol+3)));
+newBody = newBody(I,:);
+Y = 100*cell2mat(newBody(:, thisOutputCol+1));
+ErrX = X;
+ErrY = Y;
+Err = 100*cell2mat(newBody(:, thisOutputCol+2));
+fig4 = createfigureScatter(X, Y, ErrX, ErrY, Err, Axis);
+export_fig([path_root, '\', pathnameSave, '\Salt'], fig4);
 
+Axis.title = [];
+Axis.legend = [];
+Axis.xLabel = '\Deltatau187 : RNA mass ratio';
+Axis.yLabel = 'Coverage [%]';
+[X, I]= sort(cell2mat(newBody(:, thisOutputCol+4)));
+newBody = newBody(I,:);
+Y = 100*cell2mat(newBody(:, thisOutputCol+1));
+ErrX = X;
+ErrY = Y;
+Err = 100*cell2mat(newBody(:, thisOutputCol+2));
+fig5 = createfigureScatter(X, Y, ErrX, ErrY, Err, Axis);
+export_fig([path_root, '\', pathnameSave, '\Ratio'], fig5);

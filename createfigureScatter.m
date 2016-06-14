@@ -1,4 +1,4 @@
-function figure1 = createfigure(X1, YMatrix1, XMatrix1, YMatrix2, EMatrix1, Axis)
+function figure1 = createfigureScatter(X1, YMatrix1, XMatrix1, YMatrix2, EMatrix1, Axis)
 %CREATEFIGURE(X1, YMATRIX1, XMATRIX1, YMATRIX2, EMATRIX1)
 %  X1:  vector of x data
 %  YMATRIX1:  matrix of y data
@@ -38,7 +38,7 @@ for iii = 1:size(YMatrix1, 2)
 end
 
 % Create multiple error bars using matrix input to errorbar
-errorbar1 = errorbar(XMatrix1,YMatrix2,EMatrix1,'LineWidth',1);
+errorbar1 = errorbar(XMatrix1,YMatrix2,EMatrix1,'LineWidth',1.75);
 for iii = 1:size(EMatrix1, 2)
     set(errorbar1(iii),'Color',getColor(iii));
 end
@@ -50,9 +50,9 @@ xlabel(Axis.xLabel);
 ylabel(Axis.yLabel);
 
 %% Uncomment the following line to preserve the X-limits of the axes
-xlim(axes1,[0 10]);
+xlim(axes1, [0 40]);
 %% Uncomment the following line to preserve the Y-limits of the axes
-ylim(axes1,[0 150]);
+% ylim(axes1,[0 150]);
 box(axes1,'on');
 % Set the remaining axes properties
 set(axes1,'FontSize',14,...
