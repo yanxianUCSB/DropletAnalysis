@@ -158,7 +158,7 @@ export_fig([path_root, '\', pathnameSave, '\Salt'], fig4);
 
 Axis.title = [];
 Axis.legend = [];
-Axis.xLabel = '\Deltatau187 : RNA mass ratio';
+Axis.xLabel = 'Protein:RNA mass ratio';
 Axis.yLabel = 'Coverage [%]';
 [X, I]= sort(cell2mat(newBody(:, thisOutputCol+4)));
 newBody = newBody(I,:);
