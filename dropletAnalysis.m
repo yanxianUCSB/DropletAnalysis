@@ -2,7 +2,7 @@ function path_root = dropletAnalysis(path_root)
 
 %% Set path of the head file
 if ~exist('path_root', 'var')
-    path_root = uigetdir('C:/', 'Choose directory where the head.csv is');    %Choose directory containing TIFF files.
+    path_root = uigetdir('C:/', 'Choose directory where the /raw/ is');    %Choose directory containing TIFF files.
 end
 
 % Head Filename

@@ -15,9 +15,10 @@ files = dir(strcat([pathname,'/*.tif']));
 %time of the experiment (e.g. injection start time) and the time that the
 %camera turns on.
 
-answer = inputdlg('Enter camera delay time in seconds: ',...
-    'Camera Delay', 1, {'0'});
-cameraDelay = str2num(answer{1});
+% answer = inputdlg('Enter camera delay time in seconds: ',...
+%     'Camera Delay', 1, {'0'});
+% cameraDelay = str2num(answer{1});
+cameraDelay = 0;
 
 for i = 1:size(files,1)
     

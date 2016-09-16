@@ -50,7 +50,7 @@ xlabel(Axis.xLabel);
 ylabel(Axis.yLabel);
 
 %% Uncomment the following line to preserve the X-limits of the axes
-xlim(axes1, [0 40]);
+xlim(axes1, [0 inf]);
 %% Uncomment the following line to preserve the Y-limits of the axes
 % ylim(axes1,[0 150]);
 box(axes1,'on');
