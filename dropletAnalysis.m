@@ -9,12 +9,12 @@ end
 headfilename = 'head';
 
 %% process Tifs
-processTifs([path_root, '\\raw']);
+% processTifs([path_root, '\\raw']);
 
 %% Calculate Size Distribution
 bwlabelpara = 8;  % lookup bwlabel.m
 Eccentricity = 0.9;  % Threshold for Eccentricity
-thrd_adjust = -200;  % Intensity threshold offset
+thrd_adjust = 0;  % Intensity threshold offset
 numberOfBins = 18; % Or whatever you want.
 ifgroupon = 1;  % 1: average distribution of the regions
 SCALE = 0.322 / 2;
