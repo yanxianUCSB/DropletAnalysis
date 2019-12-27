@@ -6,10 +6,7 @@ function processTifs(pathname)
 % matlab .mat file for later use.
 
 
-if ~exist('pathname', 'var')
-    pathname = uigetdir('C:/', 'Choose directory containing TIF files:');    %Choose directory containing TIFF files.
-end
-files = dir(strcat([pathname,'/*.tif']));
+files = filesInPath(pathname);
 
 %Enter the camera delay in seconds.  This is the delay between the start
 %time of the experiment (e.g. injection start time) and the time that the
