@@ -1,4 +1,5 @@
 function files = filesInPath(pathname, type)
+    % Return a struct array of files in a given path
     
     if ~exist('type', 'var')
         type = 'tif';
