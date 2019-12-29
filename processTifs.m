@@ -35,8 +35,7 @@ for i = 1:size(files,1)
     %
 end
 
-warning('on','MATLAB:imagesci:Tiff:libraryWarning');
-warning('on','MATLAB:imagesci:tiffmexutils:libtiffWarning');
+
 
 end
 

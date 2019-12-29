@@ -1,6 +1,5 @@
 function tifData = getTifData(filename)
 % 
-    [~, name, ext] = fileparts(filename);
     imageInfo=imfinfo(filename);
     imageWidth=imageInfo(1).Width;
     imageHeight=imageInfo(1).Height;
@@ -10,33 +9,17 @@ function tifData = getTifData(filename)
     
     numFrames=length(imageInfo);
     imageData=zeros(imageHeight,imageWidth,numFrames,'uint16');
-    %         exposureTime = imageInfo(1).UnknownTags(13).Value;
-    %         cycleTime = imageInfo(1).UnknownTags(15).Value;
-    %         frameRate = 1.0/cycleTime;
-    %         sensorTemp = imageInfo(1).UnknownTags(6).Value;
     
-    
-    
-    warning('off','MATLAB:imagesci:Tiff:libraryWarning');
-    warning('off','MATLAB:imagesci:tiffmexutils:libtiffWarning');
+%     warning('off','MATLAB:imagesci:Tiff:libraryWarning');
+%     warning('off','MATLAB:imagesci:tiffmexutils:libtiffWarning');
     imageData = imread(filename);
-    
-    varname = genvarname(name);
-    
+%     warning('on','MATLAB:imagesci:Tiff:libraryWarning');
+%     warning('on','MATLAB:imagesci:tiffmexutils:libtiffWarning');
+        
     tifData =  struct(...
         'numFrames',{numFrames}',...
         'imageData',{imageData},...
         'verticalBinning',{vBin},...
         'horizontalBinning',{hBin});
-    
-    %     tifData =  struct(...
-    %         'numFrames',{numFrames}',...
-    %             'exposureTime',{exposureTime},...
-    %             'cycleTime',{cycleTime},...
-    %             'frameRate',{frameRate},...
-    %             'sensorTemp',{sensorTemp},...
-    %     'imageData',{imageData},...
-    %         'cameraDelay',{cameraDelay},...
-    %         'verticalBinning',{vBin},...
-    %         'horizontalBinning',{hBin});
+
 end

@@ -8,6 +8,13 @@ classdef DropletTest < matlab.unittest.TestCase
             expSolution = 1;
             testCase.verifyEqual(actSolution, expSolution);
         end
+        
+        function testGetTifData(tc)
+           filename = 'testin/untitled1.tif';
+           tifData = getTifData(filename);
+           tc.verifyClass(tifData.imageData, 'uint16');
+           tc.verifyEqual(tifData.numFrames, 1);
+        end
 
     end
 
