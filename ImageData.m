@@ -1,0 +1,3 @@
+classdef ImageData
+    
+end
