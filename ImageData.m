@@ -12,5 +12,8 @@ classdef ImageData
         function show(obj)
             image(obj.A, 'CDataMapping', 'scaled');
         end
+        function histogram(obj)
+            histogram(obj.A)
+        end
     end
 end
