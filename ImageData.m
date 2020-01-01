@@ -126,6 +126,17 @@ classdef ImageData
         function histogram(obj)
             histogram(obj.A)
         end
+        function filename = imwrite(obj, filename)
+            if nargin == 0
+                filename = strcat(tempname, '.png');
+            end
+            if obj.isbinary
+                A = uint16(obj.A)*2^16;
+            else
+                A = obj.A;
+            end
+            imwrite(A, filename);
+        end
     end
     methods (Static)
         function C = imfuse(id0, id)
