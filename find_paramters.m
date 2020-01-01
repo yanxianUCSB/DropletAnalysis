@@ -24,17 +24,21 @@ imshowpair(I,binaryImage,'montage');
 
 %% get best min, max Diam, sensitive for the demo image
 id0 = ImageData('demo');
-minDiams = 3:7;
-sensies = linspace(0.6, 0.7, 5);
+minDiams = 3;
+sensies = linspace(0.6, 0.7, 1);
 idArray = ImageData.empty(length(minDiams),0);
 for ii = 1:length(minDiams)
     for jj = 1:length(sensies)
+        %%
         minDiam = minDiams(ii);
         maxDiam = 100;
         ecc = 1;
         cir = 0.5;
         sensitivity = sensies(jj);
         id0 = id0.stretchlim();
+%         id0 = id0.imgradient();
+%         id0.show()
+        %%
         id = id0.imbinarize(sensitivity);
         id = id.labelimage();
         id = id.regionprops();
@@ -60,13 +64,54 @@ end
 % imwrite
 imwrite(hugeImage, 'tmp.png');
 % seems 0.6 and 3 is better
+
+
 %% find all brightfield images in a folder and its subfolders
+clear all;
 % doc filefinder
 ida0 = ImageDataArray('demo');
-ida0 = ida0.strechlim();
-ida1 = ida0.finddroplet();
+dp = DropletParams();
+for sensitivity = linspace(0.6, 0.7, 5)
+    dp.sensitivity = sensitivity;
+    ida1 = ida0.finddroplet(dp);
+    %%
+    him0 = ida0.strechlim().toHugeImage();
+    him1 = ida1.toHugeImage();
+    imwrite([him0, 2^16*him1], strcat('tmp', num2str(sensitivity),'.png'));
+end
 %%
-him0 = ida0.toHugeImage();
+him0 = ida0.strechlim().toHugeImage();
 him1 = ida1.toHugeImage();
 imwrite([him0, 2^16*him1], 'tmp.png')
+%% calculate percentage
+percents = ida1.analyze();
+cell2csv('results.csv', percents)
+
+
+%% Try gradient
+clear all;
+minDiams = 3;
+sensies = linspace(0.6, 0.7, 1);
+idArray = ImageData.empty(length(minDiams),0);
+minDiam = 3;
+maxDiam = 100;
+ecc = 1;
+cir = 0.5;
+sensitivity = 0.6;
+
+id0 = ImageData('demo');
+id1 = id0.imgradient();
+range(id1.A, 'all')
+id2 = id0.stretchlim();
+id2 = id2.imgradient();
+range(id2.A, 'all')
 %%
+id1.show()
+%%
+id2.show()
+%%
+imshowpair(originalI,dilatedI,'montage')
+
+
+
+

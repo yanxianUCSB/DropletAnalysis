@@ -19,12 +19,22 @@ classdef ImageDataArray < ObjectArray
                 obj.idArray = argin;
             end
         end
-        function obj = finddroplet(obj)
+        function obj = finddroplet(obj, params)
             assert(~isempty(obj.idArray))
             for ii = 1:numel(obj.idArray)
-                obj.idArray(ii) = obj.idArray(ii).finddroplet();
+                obj.idArray(ii) = obj.idArray(ii).finddroplet(params);
             end
             obj.isdroplet = true;
+        end
+        function res = analyze(obj)
+            assert(obj.isdroplet)
+            res = {'FilePath', 'Percentage'};
+            for ii = 1:obj.size
+                id = obj.idArray(ii);
+                [filepath, ~, ~] = fileparts(id.filepath);
+                res{ii+1,1} = filepath;
+                res{ii+1,2} = id.getpc();
+            end
         end
         function hugeImage = toHugeImage(obj)
             assert(~isempty(obj.idArray))

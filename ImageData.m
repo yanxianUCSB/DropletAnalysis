@@ -7,6 +7,7 @@ classdef ImageData
         isbinary = false;
         islabeled = false;
         ismeasured = false;
+        isgradient = false;
     end
     methods
         % getters and setters
@@ -41,6 +42,12 @@ classdef ImageData
         function obj = imbinarize(obj, sensitivity)
             obj.A = imbinarize(obj.A, 'adaptive','Sensitivity',sensitivity);
             obj.isbinary = true;
+        end
+        function obj = imgradient(obj)
+            if ~obj.isgradient
+                obj.A = imgradient(obj.A);
+                obj.isgradient = true;
+            end
         end
         function obj = labelimage(obj)
             assert(obj.isbinary);
@@ -87,13 +94,9 @@ classdef ImageData
             obj.A = ismember(obj.A, idx);
             obj.ismeasured = false;
         end
-        function obj = finddroplet(obj)
-            % optimal parameters chosen manually 
-            sensitivity = 0.6;
-            minDiam = 4;
-            maxDiam = 100;
-            ecc = 1;
-            cir = 0.5;
+        function obj = finddroplet(obj, params)
+            assert(isa(params, 'DropletParams'));
+            [sensitivity, minDiam, maxDiam, ecc, cir] = params.print();
             %
             if ~obj.isbinary
                 obj = obj.stretchlim();
