@@ -1,5 +1,6 @@
 classdef ImageDataArray < ObjectArray
     properties
+        folder = '';
         idArray
         isdroplet = false
     end
@@ -13,7 +14,8 @@ classdef ImageDataArray < ObjectArray
                 if strcmp(argin, 'demo')
                     argin = 'testin';
                 end
-                fileList = dir(fullfile(argin, '**', '*Brightfield*.tif'));
+                obj.folder = argin;
+                fileList = dir(fullfile(obj.folder, '**', '*Brightfield*.tif'));
                 obj.idArray = obj.imarrayread(fileList);
             elseif isa(argin, 'ImageData')
                 obj.idArray = argin;
@@ -25,6 +27,13 @@ classdef ImageDataArray < ObjectArray
                 obj.idArray(ii) = obj.idArray(ii).finddroplet(params);
             end
             obj.isdroplet = true;
+        end
+        function pcnt = getpc(obj)
+            assert(obj.isdroplet)
+            pcnt = zeros(1, obj.size);
+            for ii = 1:obj.size
+                pcnt(ii) = obj.idArray(ii).getpc();
+            end
         end
         function res = analyze(obj)
             assert(obj.isdroplet)
