@@ -22,9 +22,12 @@ classdef ImageData
             if nargin == 0
                 return
             end
-            if strcmp(filepath, 'demo')
+            if isstruct(filepath)
+                filepath = fullfile(filepath.folder, filepath.name);
+            elseif ischar(filepath) && strcmp(filepath, 'demo')
                 filepath = 'testin/2N4R-1/Pos0/img_000000000_Brightfield_000.tif';
             end
+            assert(ischar(filepath));
             obj.filepath = filepath;
             [obj.A, obj.map, obj.transparency] = imread(obj.filepath);
         end

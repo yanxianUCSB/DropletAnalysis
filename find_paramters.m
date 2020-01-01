@@ -1,8 +1,8 @@
 %% isodata
-da = DropletAnalyzer();
+ida = DropletAnalyzer();
 id = ImageData('demo');
 id = id.stretchlim();
-level = da.getlevel(id)
+level = ida.getlevel(id)
 %% sensitivity
 id = ImageData('demo');
 I = id.A;
@@ -60,4 +60,13 @@ end
 % imwrite
 imwrite(hugeImage, 'tmp.png');
 % seems 0.6 and 3 is better
-%% plot
+%% find all brightfield images in a folder and its subfolders
+% doc filefinder
+ida0 = ImageDataArray('demo');
+ida0 = ida0.strechlim();
+ida1 = ida0.finddroplet();
+%%
+him0 = ida0.toHugeImage();
+him1 = ida1.toHugeImage();
+imwrite([him0, 2^16*him1], 'tmp.png')
+%%
