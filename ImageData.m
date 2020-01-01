@@ -2,14 +2,26 @@ classdef ImageData
     properties
         filepath;
         A, map, transparency;
+        width, height;
         measurements;
         isbinary = false;
         islabeled = false;
         ismeasured = false;
     end
-    
+    methods
+        % getters and setters
+        function width = get.width(obj)
+            width = size(obj.A, 2);
+        end
+        function height = get.height(obj)
+            height = size(obj.A, 1);
+        end
+    end
     methods
         function obj = ImageData(filepath)
+            if nargin == 0
+                return
+            end
             if strcmp(filepath, 'demo')
                 filepath = 'testin/2N4R-1/Pos0/img_000000000_Brightfield_000.tif';
             end
@@ -33,6 +45,7 @@ classdef ImageData
             obj.islabeled = true;
         end
         function obj = regionprops(obj)
+            % Circularity is MATLAB 2019b only
             % Circularity that specifies the roundness of objects, returned
             % as a struct with field Circularity. The struct contains the
             % circularity value for each object in the input image. The
@@ -57,17 +70,36 @@ classdef ImageData
             % the region, returned as a scalar. Computed as
             % sqrt(4*Area/pi).
             assert(obj.islabeled);
-            obj.measurements = regionprops(obj.A, 'EquivDiameter','Eccentricity', 'Circularity');
+            obj.measurements = regionprops(obj.A, 'EquivDiameter','Eccentricity','Area','Perimeter');
             obj.ismeasured = true;
         end
         function obj = subsetregion(obj, minDiam, maxDiam, ecc, cir)
             assert(obj.ismeasured);
+            % compatible with MATLAB 2018b
+            circ = [obj.measurements.Area].*pi*4 ./ [obj.measurements.Perimeter] .^2;
             idx = find([obj.measurements.EquivDiameter] > minDiam & ...
                 [obj.measurements.EquivDiameter] < maxDiam & ... 
-                [obj.measurements.Circularity] > cir & ...
+                circ > cir & ...
                 [obj.measurements.Eccentricity] < ecc);
             obj.A = ismember(obj.A, idx);
             obj.ismeasured = false;
+        end
+        function obj = finddroplet(obj)
+            % optimal parameters chosen manually 
+            sensitivity = 0.6;
+            minDiam = 4;
+            maxDiam = 100;
+            ecc = 1;
+            cir = 0.5;
+            %
+            if ~obj.isbinary
+                obj = obj.stretchlim();
+                obj = obj.imbinarize(sensitivity);
+            end
+            obj = obj.labelimage();
+            obj = obj.regionprops();
+            obj = obj.subsetregion(minDiam, maxDiam, ecc, cir);
+            obj = obj.regionprops();
         end
         function percent = getpc(obj)
             % get percentage of binary images
@@ -75,11 +107,23 @@ classdef ImageData
             percent = mean(obj.A, 'all');
             return
         end
+        function diamhist = diamhist(obj)
+            % return a Histogram object
+            assert(obj.ismeasured)
+            diamhist = histogram([obj.measurements.EquivDiameter]);
+        end
         function show(obj)
             image(obj.A, 'CDataMapping', 'scaled');
         end
         function histogram(obj)
             histogram(obj.A)
+        end
+    end
+    methods (Static)
+        function C = imfuse(id0, id)
+            C = ImageData();
+            A = id0.A; B = id.A;
+            C.A = imfuse(A,B,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
         end
     end
 end
