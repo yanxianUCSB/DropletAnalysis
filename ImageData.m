@@ -8,6 +8,7 @@ classdef ImageData
         islabeled = false;
         ismeasured = false;
         isgradient = false;
+        isinverted = false;
     end
     methods
         % getters and setters
@@ -31,6 +32,30 @@ classdef ImageData
             assert(ischar(filepath));
             obj.filepath = filepath;
             [obj.A, obj.map, obj.transparency] = imread(obj.filepath);
+        end
+        function b = issameimage(obj, imagedata)
+            assert(isa(imagedata, 'ImageData'));
+            b = strcmp(obj.filepath, imagedata.filepath);
+        end
+        function obj = imOR(obj, imagedata)
+            % merge two measured imagedata
+            assert(obj.issameimage(imagedata));
+            assert(obj.ismeasured && imagedata.ismeasured);
+            % assume two imagedatas have no overlapping regions
+            % TODO: using point sorting to exclude overlapping regions.
+            assert(obj.isbinary && imagedata.isbinary);
+            obj.A = obj.A | imagedata.A;
+            obj = obj.labelimage();
+            obj = obj.regionprops();
+        end
+        function obj = invert(obj)
+            if obj.isbinary
+                obj.A = ~obj.A;
+            else
+                assert(isa(obj.A, 'uint16'));
+                obj.A = 2^16 - obj.A;
+            end
+            obj.isinverted = ~obj.isinverted;
         end
         function obj = stretchlim(obj)
             % lowhigh = stretchlim(I) computes the lower and upper limits 
@@ -100,6 +125,7 @@ classdef ImageData
             obj.ismeasured = false;
         end
         function obj = finddroplet(obj, params)
+            if nargin == 1; params = DropletParams(); end
             assert(isa(params, 'DropletParams'));
             [sensitivity, minDiam, maxDiam, ecc, cir] = params.print();
             %
