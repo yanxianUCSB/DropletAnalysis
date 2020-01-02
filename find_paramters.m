@@ -87,31 +87,72 @@ imwrite([him0, 2^16*him1], 'tmp.png')
 percents = ida1.analyze();
 cell2csv('results.csv', percents)
 
-
-%% Try gradient
+%% Work on real data
 clear all;
-minDiams = 3;
-sensies = linspace(0.6, 0.7, 1);
-idArray = ImageData.empty(length(minDiams),0);
-minDiam = 3;
-maxDiam = 100;
-ecc = 1;
-cir = 0.5;
-sensitivity = 0.6;
+datain = '/Users/yanxlin/Box/data/LightMicroscope/191122 NaCl SC';
+ida0 = ImageDataArray(datain);
+para = DropletParams();
+ida1 = ida0.finddroplet(para);
+%
+for ii = 1:numel(ida1.idArray)
+    id0A = ida0.idArray(ii).stretchlim().A;
+    id1A = ida1.idArray(ii).A;
+    imwrite(id0A, strcat('testout/', num2str(ii), 'o.png'));
+    imwrite(uint16(id1A * 2^16), strcat('testout/', num2str(ii), '.png'));
+end
+%
+percents = ida1.analyze();
+cell2csv('results.csv', percents)
 
-id0 = ImageData('demo');
-id1 = id0.imgradient();
-range(id1.A, 'all')
-id2 = id0.stretchlim();
-id2 = id2.imgradient();
-range(id2.A, 'all')
+%% Result - 1
+%' Result misses connected droplets that has large area but low circularity.
+%Try including such regions
+datain = '/Users/yanxlin/Box/data/LightMicroscope/191122 NaCl SC/2N4R-1-3/Pos0/img_000000000_Brightfield_002.tif';
+id0 = ImageData(datain);
+id1 = id0.finddroplet(DropletParams());
+ImageData.imshowpair(id0, id1)
+% results showed too much large irregular droplets identified. End Try.
+%% Result - 2
+% z-stack images show that at some focus droplet appears brighter than
+% background while at other focus droplet appears darker. Ideally, an alg
+% should segment droplets based on its constrast with nearby surrounding.
+% Current alg assumes droplets are brigher. Therefore experimentally we
+% should do a z stack and select the one with maximum coverage.
+clear all
+datain = '/Users/yanxlin/Box/data/LightMicroscope/191122 NaCl SC/';
+dataout= 'testout/';
+ZeissCoverage(datain, dataout);
+%% rebuttal repeat
+datain = '/Users/yanxlin/Box/data/LightMicroscope/190923-rebuttal-repeat/';
+dataout= 'testout/1/';
+ZeissCoverage(datain, dataout);
 %%
-id1.show()
+doc whichmax
 %%
-id2.show()
-%%
-imshowpair(originalI,dilatedI,'montage')
-
+% %% Try gradient
+% clear all;
+% minDiams = 3;
+% sensies = linspace(0.6, 0.7, 1);
+% idArray = ImageData.empty(length(minDiams),0);
+% minDiam = 3;
+% maxDiam = 100;
+% ecc = 1;
+% cir = 0.5;
+% sensitivity = 0.6;
+% 
+% id0 = ImageData('demo');
+% id1 = id0.imgradient();
+% range(id1.A, 'all')
+% id2 = id0.stretchlim();
+% id2 = id2.imgradient();
+% range(id2.A, 'all')
+% %%
+% id1.show()
+% %%
+% id2.show()
+% %%
+% imshowpair(originalI,dilatedI,'montage')
+% 
 
 
 

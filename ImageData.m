@@ -37,9 +37,12 @@ classdef ImageData
             % that can be used for contrast stretching grayscale or RGB 
             % image I. The limits are returned in lowhigh. By default, the
             % limits specify the bottom 1% and the top 1% of all pixel values.
-            obj.A = uint16(obj.A);
-            obj.A = imadjust(obj.A, stretchlim(obj.A), []);
-            obj.isbinary = false;
+            if obj.isbinary
+                obj.A = uint16(obj.A)*2^16;
+                obj.isbinary = false;
+            else
+                obj.A = imadjust(obj.A, stretchlim(obj.A), []);
+            end
         end
         function obj = imbinarize(obj, sensitivity)
             obj.A = imbinarize(obj.A, 'adaptive','Sensitivity',sensitivity);
