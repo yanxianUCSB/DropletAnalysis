@@ -129,14 +129,19 @@ classdef ImageData
             assert(isa(params, 'DropletParams'));
             [sensitivity, minDiam, maxDiam, ecc, cir] = params.print();
             %
-            if ~obj.isbinary
-                obj = obj.stretchlim();
-                obj = obj.imbinarize(sensitivity);
+            function obj = find_(obj)
+                if ~obj.isbinary
+                    obj = obj.stretchlim();
+                    obj = obj.imbinarize(sensitivity);
+                end
+                obj = obj.labelimage();
+                obj = obj.regionprops();
+                obj = obj.subsetregion(minDiam, maxDiam, ecc, cir);
+                obj = obj.regionprops();
             end
-            obj = obj.labelimage();
-            obj = obj.regionprops();
-            obj = obj.subsetregion(minDiam, maxDiam, ecc, cir);
-            obj = obj.regionprops();
+            id1 = find_(obj);
+            id2 = find_(obj.invert());
+            obj = id1.imOR(id2);
         end
         function percent = getpc(obj)
             % get percentage of binary images
