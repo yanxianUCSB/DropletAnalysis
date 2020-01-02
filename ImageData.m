@@ -4,7 +4,7 @@ classdef ImageData
         A, map, transparency;
         width, height;
         measurements;
-        isbinary = false;
+        isbinary, isuint16;
         islabeled = false;
         ismeasured = false;
         isgradient = false;
@@ -17,6 +17,12 @@ classdef ImageData
         end
         function height = get.height(obj)
             height = size(obj.A, 1);
+        end
+        function isbinary = get.isbinary(obj)
+            isbinary = isa(obj.A, 'logical');
+        end
+        function isuint16 = get.isuint16(obj)
+            isuint16 = isa(obj.A, 'uint16');
         end
     end
     methods
@@ -37,18 +43,21 @@ classdef ImageData
             assert(isa(imagedata, 'ImageData'));
             b = strcmp(obj.filepath, imagedata.filepath);
         end
-        function obj = imOR(obj, imagedata)
-            % merge two measured imagedata
+        function obj = imXOR(obj, imagedata)
+            % merge two imagedata
             assert(obj.issameimage(imagedata));
-            assert(obj.ismeasured && imagedata.ismeasured);
             % assume two imagedatas have no overlapping regions
             % TODO: using point sorting to exclude overlapping regions.
-            assert(obj.isbinary && imagedata.isbinary);
-            obj.A = obj.A | imagedata.A;
-            obj = obj.labelimage();
-            obj = obj.regionprops();
+            obj.A = xor(obj.A, imagedata.A);
+            if obj.ismeasured && imagedata.ismeasured
+                obj = obj.labelimage();
+                obj = obj.regionprops();
+            else
+                obj.ismeasured = false;
+            end
         end
         function obj = invert(obj)
+            % obj should be either binary or uint16
             if obj.isbinary
                 obj.A = ~obj.A;
             else
@@ -70,7 +79,9 @@ classdef ImageData
             end
         end
         function obj = imbinarize(obj, sensitivity)
-            obj.A = imbinarize(obj.A, 'adaptive','Sensitivity',sensitivity);
+            if ~obj.isbinary
+                obj.A = imbinarize(obj.A, 'adaptive','Sensitivity',sensitivity);
+            end
             obj.isbinary = true;
         end
         function obj = imgradient(obj)
@@ -125,10 +136,13 @@ classdef ImageData
             obj.ismeasured = false;
         end
         function obj = finddroplet(obj, params)
+            %' obj should be binary or uint16
+            assert(obj.isbinary || obj.isuint16);
+            %setup params
             if nargin == 1; params = DropletParams(); end
             assert(isa(params, 'DropletParams'));
             [sensitivity, minDiam, maxDiam, ecc, cir] = params.print();
-            %
+            %find obj and its invert
             function obj = find_(obj)
                 if ~obj.isbinary
                     obj = obj.stretchlim();
@@ -141,11 +155,11 @@ classdef ImageData
             end
             id1 = find_(obj);
             id2 = find_(obj.invert());
-            obj = id1.imOR(id2);
+            obj = id1.imXOR(id2);
         end
         function percent = getpc(obj)
             % get percentage of binary images
-            assert(obj.isbinary);
+            if ~obj.isbinary; obj.A = imbinarize(obj.A, 1e-16); end
             percent = mean(obj.A, 'all');
             return
         end
