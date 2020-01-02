@@ -24,26 +24,21 @@ imshowpair(I,binaryImage,'montage');
 
 %% get best min, max Diam, sensitive for the demo image
 id0 = ImageData('demo');
-minDiams = 3;
-sensies = linspace(0.6, 0.7, 1);
+minDiams = 3:5;
+sensies = linspace(0.55, 0.65, 5);
 idArray = ImageData.empty(length(minDiams),0);
+params = DropletParams();
+
+id0 = id0.stretchlim();
 for ii = 1:length(minDiams)
     for jj = 1:length(sensies)
         %%
-        minDiam = minDiams(ii);
-        maxDiam = 100;
-        ecc = 1;
-        cir = 0.5;
-        sensitivity = sensies(jj);
-        id0 = id0.stretchlim();
-%         id0 = id0.imgradient();
-%         id0.show()
-        %%
-        id = id0.imbinarize(sensitivity);
-        id = id.labelimage();
-        id = id.regionprops();
-        id = id.subsetregion(minDiam, maxDiam, ecc, cir);
-        idArray(ii, jj) = id;
+        params.minDiam = minDiams(ii);
+        params.maxDiam = 100;
+        params.ecc = 1;
+        params.cir = 0.5;
+        params.sensitivity = sensies(jj);
+        idArray(ii, jj) = id0.finddroplet(params);
     end
 end
 tmpName = tempname;
@@ -71,7 +66,7 @@ clear all;
 % doc filefinder
 ida0 = ImageDataArray('demo');
 dp = DropletParams();
-for sensitivity = linspace(0.6, 0.7, 5)
+for sensitivity = linspace(0.6, 0.6, 1)
     dp.sensitivity = sensitivity;
     ida1 = ida0.finddroplet(dp);
     %%
@@ -112,22 +107,22 @@ id0 = ImageData(datain);
 id1 = id0.finddroplet(DropletParams());
 ImageData.imshowpair(id0, id1)
 % results showed too much large irregular droplets identified. End Try.
-%% Result - 2
+%% Result - 2 
 % z-stack images show that at some focus droplet appears brighter than
 % background while at other focus droplet appears darker. Ideally, an alg
 % should segment droplets based on its constrast with nearby surrounding.
 % Current alg assumes droplets are brigher. Therefore experimentally we
 % should do a z stack and select the one with maximum coverage.
+%% 191122 NaCl SC/
 clear all
 datain = '/Users/yanxlin/Box/data/LightMicroscope/191122 NaCl SC/';
 dataout= 'testout/';
 ZeissCoverage(datain, dataout);
 %% rebuttal repeat
-datain = '/Users/yanxlin/Box/data/LightMicroscope/190923-rebuttal-repeat/';
+datain = fullfile(getuserdir(),'../Box/data/LightMicroscope/190923-rebuttal-repeat/');
 dataout= 'testout/1/';
 ZeissCoverage(datain, dataout);
-%%
-doc whichmax
+
 %%
 % %% Try gradient
 % clear all;
