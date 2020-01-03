@@ -115,12 +115,12 @@ ImageData.imshowpair(id0, id1)
 % should do a z stack and select the one with maximum coverage.
 %% 191122 NaCl SC/
 clear all
-datain = '/Users/yanxlin/Box/data/LightMicroscope/191122 NaCl SC/';
-dataout= 'testout/';
+datain = fullfile(getuserdir(),'../Box/data/LightMicroscope/191122 NaCl SC/');
+dataout= 'testout/191122/';
 ZeissCoverage(datain, dataout);
 %% rebuttal repeat
 datain = fullfile(getuserdir(),'../Box/data/LightMicroscope/190923-rebuttal-repeat/');
-dataout= 'testout/1/';
+dataout= 'testout/190923/';
 ZeissCoverage(datain, dataout);
 
 %%
