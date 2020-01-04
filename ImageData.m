@@ -1,4 +1,8 @@
 classdef ImageData
+%IMAGEDATA
+% Exception Identifier
+%   NotLabeledGrayscale: 
+
     properties
         filepath;
         A, map, transparency;
@@ -48,12 +52,14 @@ classdef ImageData
             assert(obj.issameimage(imagedata));
             % assume two imagedatas have no overlapping regions
             % TODO: using point sorting to exclude overlapping regions.
-            obj.A = xor(obj.A, imagedata.A);
             if obj.ismeasured && imagedata.ismeasured
+                obj.A = xor(obj.A, imagedata.A);
                 obj = obj.labelimage();
                 obj = obj.regionprops();
+                return
             else
-                obj.ismeasured = false;
+                throw(MException('ImageData:imxor:NotLabeledGrayscale', ...
+                    'A.imxor(B), either A or B is NotLabeledGrayscale imagedata'));
             end
         end
         function obj = invert(obj)

@@ -14,18 +14,57 @@ classdef ImageDataTest < matlab.unittest.TestCase
             1   1   1   1   1
             ]);
     end
-    methods 
+    methods
         function obj = ImageDataTest()
             obj.id = ImageData('demo');
             obj.id.A = obj.A0;
         end
     end
     methods (Test)
-        function testInvert(tc)
+        function testimagedata(tc)
+            tc.assertEqual(tc.id.width, 5);
+            tc.assertEqual(tc.id.height, 10);
+            tc.assertTrue(tc.id.isbinary);
+            tc.assertFalse(tc.id.isuint16);
+        end
+        
+        function testissameimage(tc)
+            tc.assertTrue(tc.id.issameimage(tc.id));
+        end
+            
+        function testimXOR(tc)
+            % imXOR(imagedata)
+            % if both obj and imagedata are measured
+            %   compute XOR of obj and imagedata
+            %   redo measurement and return
+            % else
+            %   throw ImageData:imxor:NotLabeledGrayscale
+            
+            %case 1: imXOR of two unlabeled images
+            tc.assertFalse(tc.id.ismeasured);
+            tc.assertError(@()tc.id.imXOR(tc.id), 'ImageData:imxor:NotLabeledGrayscale');
+                        
+            %case 2: imXOR of two labeled imagedata
+            id1 = tc.id.finddroplet();
+            id2 = tc.id.invert().finddroplet();
+            tc.assertTrue(id1.ismeasured && id2.ismeasured);
+            id3 = id1.imXOR(id2);
+            tc.assertTrue(id3.ismeasured);
+            tc.assertEmpty(id3.measurements);  % a 5-by-10 droplet
+            
+            %case 3: imXOR of one labeled and one unlabeled imagedata
+            id1 = tc.id; id1.A = double(id1.A);
+            id2 = tc.id; id2 = id2.finddroplet();
+            tc.assertTrue(~id1.ismeasured && id2.ismeasured);
+            tc.assertError(@()id1.imXOR(id2), 'ImageData:imxor:NotLabeledGrayscale');
+            
+        end
+        
+        function testinvert(tc)
             %uint16 inversion
             id0 = tc.id;
             id1 = id0.invert();
-
+            
             tc.assertFalse(id0.isinverted);
             tc.assertTrue(id1.isinverted);
             tc.assertEqual(range(id0.A, 'all'), range(id1.A, 'all'));
@@ -65,24 +104,6 @@ classdef ImageDataTest < matlab.unittest.TestCase
                 tc.id.invert().finddroplet().measurements);
         end
         
-        function testimXOR(tc)
-           
-            % imXOR of two finddroplet results should be zero
-            id1 = tc.id.finddroplet();
-            id2 = tc.id.invert().finddroplet();
-            id3 = id1.imXOR(id2);
-            tc.assertEmpty(id3.measurements);
-            
-            %imXOR of two measured imagedata should be measured
-            tc.assertTrue(id3.ismeasured);
-            
-            %imXOR of two binaryimage
-            id4 = tc.id.imXOR(tc.id.invert());
-            tc.assertTrue(id4.isbinary);
-            tc.assertEqual(sum(id4.A, 'all'), numel(id3.A));
-            tc.assertFalse(id4.ismeasured);
-            
-        end
         
         function testgetpc(tc)
             tc.id.A = tc.A0;
