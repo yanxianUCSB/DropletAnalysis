@@ -2,6 +2,7 @@ classdef ImageData
 %IMAGEDATA
 % Exception Identifier
 %   NotLabeledGrayscale: 
+%   NotUint16orBinary
 
     properties
         filepath;
@@ -66,9 +67,10 @@ classdef ImageData
             % obj should be either binary or uint16
             if obj.isbinary
                 obj.A = ~obj.A;
-            else
-                assert(isa(obj.A, 'uint16'));
+            elseif obj.isuint16
                 obj.A = 2^16 - obj.A;
+            else
+                throw(MException('ImageData:invert:NotUint16orBinary', ''));
             end
             obj.isinverted = ~obj.isinverted;
         end
@@ -79,7 +81,6 @@ classdef ImageData
             % limits specify the bottom 1% and the top 1% of all pixel values.
             if obj.isbinary
                 obj.A = uint16(obj.A)*2^16;
-                obj.isbinary = false;
             else
                 obj.A = imadjust(obj.A, stretchlim(obj.A), []);
             end

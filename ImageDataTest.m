@@ -67,7 +67,7 @@ classdef ImageDataTest < matlab.unittest.TestCase
             % case 2: A.isuint16
             %     2^16 - A
             % else:
-            %       throw UnexpectedImageType
+            %       throw NotUint16orBinary
             
             %case 1: binary inversion
             id0 = tc.id;
@@ -82,11 +82,29 @@ classdef ImageDataTest < matlab.unittest.TestCase
             id1 = id0.invert();
             tc.assertEqual(id0.A + id1.A, 2^16 * uint16(ones(size(id0.A))));
             tc.assertTrue(id1.isuint16);
+            
+            %else
+            id0 = tc.id; id0.A = id0.A * 2;
+            tc.assertError(@()id0.invert(), 'ImageData:invert:NotUint16orBinary');
         end
         
         function teststretchlim(tc)
             %A.stretchlim()
-            %   use the top and bottom 1% intensity to stretch A
+            % case 1: if isuint16:
+            %           use the top and bottom 1% intensity to stretch A
+            % else:
+            %       throw ImageData:NotUint16orBinary
+            
+            % case 1:
+            id0 = tc.id;
+            id0.A = uint16(reshape(1:100, 10, 10));
+            id1 = id0.stretchlim();
+            tc.assertEqual(id1.A(1:2), uint16([0, 0]));
+            tc.assertEqual(id1.A(end-1:end), uint16([65535, 65535]));
+            
+            % case 2:
+            tc.assertTrue(tc.id.isbinary);
+            
         end
         function testImbinarize(tc)
             id = tc.id;
