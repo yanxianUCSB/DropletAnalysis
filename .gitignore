@@ -1,3 +1,5 @@
 *.m~
 testin/
 testout/
+.DS_Store
+find_paramters.m
