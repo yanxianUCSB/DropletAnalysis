@@ -16,7 +16,7 @@ classdef ImageDataTest < matlab.unittest.TestCase
     end
     methods
         function obj = ImageDataTest()
-            obj.id = ImageData('demo');
+            obj.id = ImageData();
             obj.id.A = obj.A0;
         end
     end
