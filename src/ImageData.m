@@ -1,22 +1,23 @@
 classdef ImageData
-%IMAGEDATA
-% Exception Identifier
-%   NotLabeledGrayscale: 
-%   NotUint16orBinary
+% Object for image manipulation.
 
     properties
-        filepath;
-        A, map, transparency;
-        width, height;
-        measurements;
-        isbinary, isuint16;
-        islabeled = false;
+        filepath = '';
+        A, map, transparency;   % returned by imread
+        measurements;           % returned by regionprops
+    end
+    properties (Hidden)
+        islabeled = false;      % binary. process flag.
         ismeasured = false;
         isgradient = false;
         isinverted = false;
     end
+    properties (Dependent)
+        width, height;          % int. unit: pixel
+        isbinary, isuint16;     % binary. Image types.
+    end
+    % getters and setters
     methods
-        % getters and setters
         function width = get.width(obj)
             width = size(obj.A, 2);
         end
@@ -38,6 +39,7 @@ classdef ImageData
             if isstruct(filepath)
                 filepath = fullfile(filepath.folder, filepath.name);
             elseif ischar(filepath) && strcmp(filepath, 'demo')
+                % TODO: move this line to ImageDataTest. 
                 filepath = 'testin/2N4R-1/Pos0/img_000000000_Brightfield_000.tif';
             end
             assert(ischar(filepath));
@@ -49,7 +51,7 @@ classdef ImageData
             b = strcmp(obj.filepath, imagedata.filepath);
         end
         function obj = imXOR(obj, imagedata)
-            % merge two imagedata
+            % merge two imagedata using logical XOR
             assert(obj.issameimage(imagedata));
             % assume two imagedatas have no overlapping regions
             % TODO: using point sorting to exclude overlapping regions.
@@ -86,23 +88,26 @@ classdef ImageData
             end
         end
         function obj = imbinarize(obj, sensitivity)
+            % Binarize grayscale image by adaptive thresholding.
             if ~obj.isbinary
                 obj.A = imbinarize(obj.A, 'adaptive','Sensitivity',sensitivity);
             end
-            obj.isbinary = true;
         end
         function obj = imgradient(obj)
+            % Convert grayscale image to magnitude of gradient.
             if ~obj.isgradient
                 obj.A = imgradient(obj.A);
                 obj.isgradient = true;
             end
         end
         function obj = labelimage(obj)
+            % Label binarized images
             assert(obj.isbinary);
             obj.A = bwlabel(obj.A); 
             obj.islabeled = true;
         end
         function obj = regionprops(obj)
+            % Measure regional properties.
             % Circularity is MATLAB 2019b only
             % Circularity that specifies the roundness of objects, returned
             % as a struct with field Circularity. The struct contains the
@@ -132,6 +137,8 @@ classdef ImageData
             obj.ismeasured = true;
         end
         function obj = subsetregion(obj, minDiam, maxDiam, ecc, cir)
+            % Subset regions based on diameter range, max eccentricity and
+            % min circularity. See regionprops for definitions.
             assert(obj.ismeasured);
             % compatible with MATLAB 2018b
             circ = [obj.measurements.Area].*pi*4 ./ [obj.measurements.Perimeter] .^2;
@@ -143,6 +150,7 @@ classdef ImageData
             obj.ismeasured = false;
         end
         function obj = finddroplet(obj, params)
+            % Detect and labeled droplets.
             %' obj should be binary or uint16
             assert(obj.isbinary || obj.isuint16);
             %setup params
@@ -165,13 +173,13 @@ classdef ImageData
             obj = id1.imXOR(id2);
         end
         function percent = getpc(obj)
-            % get percentage of binary images
+            % get percentage of droplet coverage
             if ~obj.isbinary; obj.A = imbinarize(obj.A, 1e-16); end
             percent = mean(obj.A, 'all');
             return
         end
         function diamhist = diamhist(obj)
-            % return a Histogram object
+            % return a Histogram object of equivDiameter
             assert(obj.ismeasured)
             diamhist = histogram([obj.measurements.EquivDiameter]);
         end
@@ -195,6 +203,7 @@ classdef ImageData
     end
     methods (Static)
         function C = imfuse(id0, id)
+            % fuse two ImageData.
             C = ImageData();
             A = id0.A; B = id.A;
             C.A = imfuse(A,B,'falsecolor','Scaling','joint','ColorChannels',[1 2 0]);
