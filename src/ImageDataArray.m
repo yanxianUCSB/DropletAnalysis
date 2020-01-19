@@ -1,8 +1,9 @@
 classdef ImageDataArray < ObjectArray
+    % Array of ImageData 
     properties
-        folder = '';
-        idArray
-        isdroplet = false
+        folder = '';            % char: a path containing all images.
+        idArray                 % ImageData Array
+        isdroplet = false;      % binary: process flag.
     end
     methods
         function obj = ImageDataArray(argin)
@@ -12,9 +13,11 @@ classdef ImageDataArray < ObjectArray
             end
             if ischar(argin)
                 if strcmp(argin, 'demo')
+                    % TODO: Define Demo in TestCase.
                     argin = 'testin';
                 end
                 obj.folder = argin;
+                % TODO: print out patterns used for tif filenames.
                 fileList = dir(fullfile(obj.folder, '**', '*Brightfield*.tif'));
                 obj.idArray = obj.imarrayread(fileList);
             elseif isa(argin, 'ImageData')
@@ -22,6 +25,7 @@ classdef ImageDataArray < ObjectArray
             end
         end
         function obj = finddroplet(obj, params)
+            % Finddroplets for each elem in idArray
             assert(~isempty(obj.idArray))
             for ii = 1:numel(obj.idArray)
                 obj.idArray(ii) = obj.idArray(ii).finddroplet(params);
@@ -29,6 +33,7 @@ classdef ImageDataArray < ObjectArray
             obj.isdroplet = true;
         end
         function pcnt = getpc(obj)
+            % Return an array of percentage of idArray
             assert(obj.isdroplet)
             pcnt = zeros(1, obj.size);
             for ii = 1:obj.size
@@ -36,6 +41,7 @@ classdef ImageDataArray < ObjectArray
             end
         end
         function res = analyze(obj)
+            % Return a cell of two columns: FilePath and Percentage
             assert(obj.isdroplet)
             res = {'FilePath', 'Percentage'};
             for ii = 1:obj.size
@@ -46,6 +52,7 @@ classdef ImageDataArray < ObjectArray
             end
         end
         function hugeImage = toHugeImage(obj)
+            % Tile all images in idArray rowwise
             assert(~isempty(obj.idArray))
             ht = obj.idArray(1).height;
             wd = obj.idArray(1).width;
@@ -61,7 +68,8 @@ classdef ImageDataArray < ObjectArray
             end
         end
     end
-    methods % getters and setters
+    % getters and setters
+    methods 
         function idArray = get.idArray(obj)
             idArray = obj.data;
         end
@@ -71,6 +79,7 @@ classdef ImageDataArray < ObjectArray
     end
     methods (Static)
         function idArray = imarrayread(fileList)
+            % Returns an Array of ImageData using a fileList struct
             assert(isstruct(fileList));
             idArray = ImageData().empty();
             for ii = 1:numel(fileList)
@@ -78,8 +87,5 @@ classdef ImageDataArray < ObjectArray
             end
         end
     end
-    %1. convert image file path to ImageData
-    %2. convert ImageData to size freq
-    %3. read all subfolder and output a table of size freq
 end
 
