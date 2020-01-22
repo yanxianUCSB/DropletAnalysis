@@ -18,7 +18,8 @@ classdef ImageDataArray < ObjectArray
                 end
                 obj.folder = argin;
                 % TODO: print out patterns used for tif filenames.
-                fileList = dir(fullfile(obj.folder, '**', '*Brightfield*.tif'));
+%                 fileList = dir(fullfile(obj.folder, '**', '*Brightfield*.tif'));
+                fileList = dir(fullfile(obj.folder, '**', '*.tif'));
                 obj.idArray = obj.imarrayread(fileList);
             elseif isa(argin, 'ImageData')
                 obj.idArray = argin;
