@@ -1,7 +1,15 @@
-function ZeissCoverage(dirin, dirout, bimwrite)
+function ZeissCoverageGroup(dirin, dirout, bimwrite)
+if nargin < 1
+    dirin = uigetdir('Define input directory');
+end
+if nargin < 2
+    dirout = dirin;
+end
 if nargin < 3
     bimwrite = false;
 end
+
+
     d = dir(dirin);
     d = d([d.isdir]);
     assert(numel(d) > 2);
