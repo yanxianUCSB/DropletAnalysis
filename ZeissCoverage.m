@@ -1,4 +1,14 @@
 function ZeissCoverage(dirin, dirout, bimwrite)
+% compute fraction of droplet in the images
+% Data must be collected in uint16 TIF images and stored in directory DIRIN
+% or its subfolders.
+% Results will be saved as results.csv in directory DIROUT.
+%
+%   DIRIN: directory where images are, By default will prompt to ask user
+%          input
+%   DIROUT: directory to save output. Default is DIRIN
+%   bimwrite: whether or not to save processing results.
+%
 if nargin < 1
     dirin = uigetdir('Define input directory');
 end
