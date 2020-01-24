@@ -106,6 +106,11 @@ classdef ImageData
             obj.A = bwlabel(obj.A); 
             obj.islabeled = true;
         end
+        function obj = imfill(obj)
+            % Filled binary image
+            assert(obj.isbinary);
+            obj.A = imfill(obj.A, 'holes');
+        end
         function obj = regionprops(obj)
             % Measure regional properties.
             % Circularity is MATLAB 2019b only
@@ -163,6 +168,7 @@ classdef ImageData
                     obj = obj.stretchlim();
                     obj = obj.imbinarize(sensitivity);
                 end
+                obj = obj.imfill();
                 obj = obj.labelimage();
                 obj = obj.regionprops();
                 obj = obj.subsetregion(minDiam, maxDiam, ecc, cir);
