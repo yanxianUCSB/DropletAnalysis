@@ -31,15 +31,17 @@ end
         if ida0.isempty; continue; end
         ida1 = ida0.finddroplet(DropletParams());
         pcnts = ida1.getpc();
-        for jj = 1:numel(pcnts)
+        for jj = 1:numel(ida1.idArray)
             results{kk, 1} = d(ii).name;
             results{kk, 2} = ida1.idArray(jj).filepath;
             results{kk, 3} = pcnts(jj);
             kk = kk+1;
-        end
-        if bimwrite
-            ida0.idArray(imax).stretchlim().imwrite(strcat(dirout, filesep, d(ii).name, '-0.png'))
-            ida1.idArray(imax).stretchlim().imwrite(strcat(dirout, filesep, d(ii).name, '-1.png'));
+            if bimwrite
+                [~, b, ~] =fileparts(ida1.idArray(jj).filepath); 
+                disp(b);
+                ida0.idArray(jj).stretchlim().imwrite(strcat(dirout, filesep, d(ii).name, b, '-0.png'));
+                ida1.idArray(jj).stretchlim().imwrite(strcat(dirout, filesep, d(ii).name, b, '-1.png'));
+            end
         end
     end
     cell2csv(strcat(dirout, filesep, 'results.csv'), results);
