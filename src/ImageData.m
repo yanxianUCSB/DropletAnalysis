@@ -50,7 +50,7 @@ classdef ImageData
             assert(isa(imagedata, 'ImageData'));
             b = strcmp(obj.filepath, imagedata.filepath);
         end
-        function obj = imXOR(obj, imagedata)
+        function obj = imOR(obj, imagedata)
             % merge two imagedata using logical XOR
             assert(obj.issameimage(imagedata));
             % assume two imagedatas have no overlapping regions
@@ -61,8 +61,8 @@ classdef ImageData
                 obj = obj.regionprops();
                 return
             else
-                throw(MException('ImageData:imxor:NotLabeledGrayscale', ...
-                    'A.imxor(B), either A or B is NotLabeledGrayscale imagedata'));
+                throw(MException('ImageData:imOR:NotLabeledGrayscale', ...
+                    'A.imOR(B), either A or B is NotLabeledGrayscale imagedata'));
             end
         end
         function obj = invert(obj)
@@ -176,7 +176,7 @@ classdef ImageData
             end
             id1 = find_(obj);
             id2 = find_(obj.invert());
-            obj = id1.imXOR(id2);
+            obj = id1.imOR(id2);
         end
         function percent = getpc(obj)
             % get percentage of droplet coverage

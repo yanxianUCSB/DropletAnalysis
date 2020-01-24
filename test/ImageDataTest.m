@@ -13,11 +13,19 @@ classdef ImageDataTest < matlab.unittest.TestCase
             1   1   0   1   1
             1   1   1   1   1
             ]);
+        params;
     end
     methods
         function obj = ImageDataTest()
             obj.id = ImageData();
             obj.id.A = obj.A0;
+            params = DropletParams();
+            params.sensitivity = 0.6;
+            params.minDiam = 4;
+            params.maxDiam = 100;
+            params.ecc = 1;
+            params.cir = 0.5;
+            params.isdefault = true;
         end
     end
     methods (Test)
@@ -32,31 +40,31 @@ classdef ImageDataTest < matlab.unittest.TestCase
             tc.assertTrue(tc.id.issameimage(tc.id));
         end
             
-        function testimXOR(tc)
-            % imXOR(imagedata)
+        function testimOR(tc)
+            % imOR(imagedata)
             % if both obj and imagedata are measured
             %   compute XOR of obj and imagedata
             %   redo measurement and return
             % else
-            %   throw ImageData:imxor:NotLabeledGrayscale
+            %   throw ImageData:imOR:NotLabeledGrayscale
             
-            %case 1: imXOR of two unlabeled images
+            %case 1: imOR of two unlabeled images
             tc.assertFalse(tc.id.ismeasured);
-            tc.assertError(@()tc.id.imXOR(tc.id), 'ImageData:imxor:NotLabeledGrayscale');
+            tc.assertError(@()tc.id.imOR(tc.id), 'ImageData:imOR:NotLabeledGrayscale');
                         
-            %case 2: imXOR of two labeled imagedata
+            %case 2: imOR of two labeled imagedata
             id1 = tc.id.finddroplet();
             id2 = tc.id.invert().finddroplet();
             tc.assertTrue(id1.ismeasured && id2.ismeasured);
-            id3 = id1.imXOR(id2);
+            id3 = id1.imOR(id2);
             tc.assertTrue(id3.ismeasured);
             tc.assertEmpty(id3.measurements);  % a 5-by-10 droplet
             
-            %case 3: imXOR of one labeled and one unlabeled imagedata
+            %case 3: imOR of one labeled and one unlabeled imagedata
             id1 = tc.id; id1.A = double(id1.A);
             id2 = tc.id; id2 = id2.finddroplet();
             tc.assertTrue(~id1.ismeasured && id2.ismeasured);
-            tc.assertError(@()id1.imXOR(id2), 'ImageData:imxor:NotLabeledGrayscale');
+            tc.assertError(@()id1.imOR(id2), 'ImageData:imOR:NotLabeledGrayscale');
             
         end
         
