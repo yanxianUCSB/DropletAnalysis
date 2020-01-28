@@ -13,6 +13,18 @@ classdef ImageDataTest < matlab.unittest.TestCase
             1   1   0   1   1
             1   1   1   1   1
             ]);
+        img_hole = logical([
+            0   0   0   0   0
+            0   0   1   0   0
+            0   1   0   1   0
+            0   0   1   0   0
+            0   0   0   0   0
+            1   1   1   1   1
+            1   1   0   1   1
+            1   0   0   0   1
+            1   1   0   1   1
+            1   1   1   1   1
+            ]);
         params;
     end
     methods
@@ -147,6 +159,11 @@ classdef ImageDataTest < matlab.unittest.TestCase
             tc.assertEqual(tc.id.getpc(), 0.5000);
             tc.id.A = double(tc.A0)*10000;
             tc.assertEqual(tc.id.getpc(), 0.5000);
+        end
+        
+        function testimfill(tc)
+            tc.id.A = tc.img_hole;
+            tc.assertEqual(sum(tc.id.A, 'all') + 1, sum(tc.id.imfill().A, 'all'));
         end
     end
 end

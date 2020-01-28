@@ -56,7 +56,7 @@ classdef ImageData
             % assume two imagedatas have no overlapping regions
             % TODO: using point sorting to exclude overlapping regions.
             if obj.ismeasured && imagedata.ismeasured
-                obj.A = xor(obj.A, imagedata.A);
+                obj.A = or(obj.A, imagedata.A);
                 obj = obj.labelimage();
                 obj = obj.regionprops();
                 return
@@ -154,28 +154,29 @@ classdef ImageData
             obj.A = ismember(obj.A, idx);
             obj.ismeasured = false;
         end
-        function obj = finddroplet(obj, params)
+        function obj = finddroplet0(obj, params)
             % Detect and labeled droplets.
+            assert(isa(params, 'DropletParams'));
+            [sensitivity, minDiam, maxDiam, ecc, cir] = params.print();
+            if ~obj.isbinary
+                obj = obj.stretchlim();
+                obj = obj.imbinarize(sensitivity);
+            end
+            obj = obj.imfill();
+            obj = obj.labelimage();
+            obj = obj.regionprops();
+            obj = obj.subsetregion(minDiam, maxDiam, ecc, cir);
+            obj = obj.regionprops();
+        end
+        function obj = finddroplet(obj, params)
+            % Detect and labeled droplets on a binary image and its invert.
             %' obj should be binary or uint16
             assert(obj.isbinary || obj.isuint16);
             %setup params
             if nargin == 1; params = DropletParams(); end
-            assert(isa(params, 'DropletParams'));
-            [sensitivity, minDiam, maxDiam, ecc, cir] = params.print();
             %find obj and its invert
-            function obj = find_(obj)
-                if ~obj.isbinary
-                    obj = obj.stretchlim();
-                    obj = obj.imbinarize(sensitivity);
-                end
-                obj = obj.imfill();
-                obj = obj.labelimage();
-                obj = obj.regionprops();
-                obj = obj.subsetregion(minDiam, maxDiam, ecc, cir);
-                obj = obj.regionprops();
-            end
-            id1 = find_(obj);
-            id2 = find_(obj.invert());
+            id1 = finddroplet0(obj, params);
+            id2 = finddroplet0(obj.invert(), params);
             obj = id1.imOR(id2);
         end
         function percent = getpc(obj)
@@ -192,8 +193,8 @@ classdef ImageData
         function show(obj)
             image(obj.A, 'CDataMapping', 'scaled');
         end
-        function histogram(obj)
-            histogram(obj.A)
+        function h = histogram(obj)
+            h = histogram(obj.A);
         end
         function filename = imwrite(obj, filename)
             if nargin == 0
