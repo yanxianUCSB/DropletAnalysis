@@ -32,6 +32,7 @@ classdef ImageData
         end
     end
     methods
+        
         function obj = ImageData(filepath)
             if nargin == 0
                 return
@@ -45,7 +46,14 @@ classdef ImageData
             assert(ischar(filepath));
             obj.filepath = filepath;
             [obj.A, obj.map, obj.transparency] = imread(obj.filepath);
+            
+            %convert uint8 to uint16 to compatible older data
+            if isa(obj.A, 'uint8')
+                obj.A = uint16(obj.A);
+            end
+            
         end
+        
         function b = issameimage(obj, imagedata)
             assert(isa(imagedata, 'ImageData'));
             b = strcmp(obj.filepath, imagedata.filepath);
