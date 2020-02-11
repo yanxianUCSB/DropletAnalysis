@@ -9,6 +9,9 @@ function ZeissCoverage(dirin, dirout, bimwrite)
 %   DIROUT: directory to save output. Default is DIRIN
 %   bimwrite: whether or not to save processing results.
 %
+
+% add to path
+addpath('src/*');
 if nargin < 1
     dirin = uigetdir('Define input directory');
 end
