@@ -1,4 +1,7 @@
 *.m~
+*.mat
+*.png
+*.asv
 testin/
 testout/
 .DS_Store
