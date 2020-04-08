@@ -1,3 +1,4 @@
 function setup()
-    run(DropletTest)
+    addpath 3rd test src src/helper
+    run(ImageDataTest)
 end

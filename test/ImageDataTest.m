@@ -70,7 +70,7 @@ classdef ImageDataTest < matlab.unittest.TestCase
             tc.assertTrue(id1.ismeasured && id2.ismeasured);
             id3 = id1.imOR(id2);
             tc.assertTrue(id3.ismeasured);
-            tc.assertEmpty(id3.measurements);  % a 5-by-10 droplet
+            tc.assertNotEmpty(id3.measurements);  % a 5-by-10 droplet
             
             %case 3: imOR of one labeled and one unlabeled imagedata
             id1 = tc.id; id1.A = double(id1.A);
@@ -163,7 +163,7 @@ classdef ImageDataTest < matlab.unittest.TestCase
         
         function testimfill(tc)
             tc.id.A = tc.img_hole;
-            tc.assertEqual(sum(tc.id.A, 'all') + 1, sum(tc.id.imfill().A, 'all'));
+            tc.assertEqual(sum(tc.id.A, 'all') + 6, sum(tc.id.imfill().A, 'all'));
         end
     end
 end
